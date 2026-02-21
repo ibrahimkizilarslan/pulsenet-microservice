@@ -1,0 +1,6 @@
+@PulseNet.Timeline.Api_HostAddress = http://localhost:5196
+
+GET {{PulseNet.Timeline.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

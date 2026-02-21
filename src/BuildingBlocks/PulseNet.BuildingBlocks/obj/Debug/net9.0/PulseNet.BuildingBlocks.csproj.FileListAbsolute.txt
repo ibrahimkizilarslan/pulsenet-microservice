@@ -1,0 +1,13 @@
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/bin/Debug/net9.0/PulseNet.BuildingBlocks.deps.json
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/bin/Debug/net9.0/PulseNet.BuildingBlocks.dll
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/bin/Debug/net9.0/PulseNet.BuildingBlocks.pdb
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/obj/Debug/net9.0/PulseNet.BuildingBlocks.csproj.AssemblyReference.cache
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/obj/Debug/net9.0/PulseNet.BuildingBlocks.GeneratedMSBuildEditorConfig.editorconfig
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/obj/Debug/net9.0/PulseNet.BuildingBlocks.AssemblyInfoInputs.cache
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/obj/Debug/net9.0/PulseNet.BuildingBlocks.AssemblyInfo.cs
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/obj/Debug/net9.0/PulseNet.BuildingBlocks.csproj.CoreCompileInputs.cache
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/obj/Debug/net9.0/PulseNet.BuildingBlocks.sourcelink.json
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/obj/Debug/net9.0/PulseNet.BuildingBlocks.dll
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/obj/Debug/net9.0/refint/PulseNet.BuildingBlocks.dll
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/obj/Debug/net9.0/PulseNet.BuildingBlocks.pdb
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/obj/Debug/net9.0/ref/PulseNet.BuildingBlocks.dll

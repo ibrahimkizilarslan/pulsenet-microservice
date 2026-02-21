@@ -1,0 +1,28 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/PulseNet.BuildingBlocks/PulseNet.BuildingBlocks.csproj" />
+  </Folder>
+  <Folder Name="/src/Gateway/">
+    <Project Path="src/Gateway/PulseNet.Gateway/PulseNet.Gateway.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/Auth/">
+    <Project Path="src/Services/Auth/PulseNet.Auth.Api/PulseNet.Auth.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Follows/">
+    <Project Path="src/Services/Follows/PulseNet.Follows.Api/PulseNet.Follows.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Posts/">
+    <Project Path="src/Services/Posts/PulseNet.Posts.Api/PulseNet.Posts.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Timeline/">
+    <Project Path="src/Services/Timeline/PulseNet.Timeline.Api/PulseNet.Timeline.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Users/">
+    <Project Path="src/Services/Users/PulseNet.Users.Api/PulseNet.Users.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PulseNet.Gateway.Tests/PulseNet.Gateway.Tests.csproj" />
+  </Folder>
+</Solution>

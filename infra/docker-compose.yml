@@ -1,0 +1,206 @@
+version: "3.9"
+
+networks:
+  public_net:
+    driver: bridge
+  internal_net:
+    driver: bridge
+    internal: true
+
+services:
+
+  # ──────────────────────────────────────
+  # API GATEWAY (public-facing)
+  # ──────────────────────────────────────
+  gateway:
+    build:
+      context: ..
+      dockerfile: src/Gateway/PulseNet.Gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Jwt__Secret=PulseNetSuperSecretKeyThatIsAtLeast32Characters!!
+      - Jwt__Issuer=PulseNet
+      - Jwt__Audience=PulseNet
+    networks:
+      - public_net
+      - internal_net
+    depends_on:
+      - auth
+      - users
+      - posts
+      - follows
+      - timeline
+    restart: unless-stopped
+
+  # ──────────────────────────────────────
+  # AUTH SERVICE
+  # ──────────────────────────────────────
+  auth:
+    build:
+      context: ..
+      dockerfile: src/Services/Auth/PulseNet.Auth.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Mongo__ConnectionString=mongodb://mongo-auth:27017
+      - Mongo__DatabaseName=pulsenet_auth
+      - Jwt__Secret=PulseNetSuperSecretKeyThatIsAtLeast32Characters!!
+      - Jwt__Issuer=PulseNet
+      - Jwt__Audience=PulseNet
+    networks:
+      - internal_net
+    depends_on:
+      - mongo-auth
+    restart: unless-stopped
+
+  # ──────────────────────────────────────
+  # USERS SERVICE
+  # ──────────────────────────────────────
+  users:
+    build:
+      context: ..
+      dockerfile: src/Services/Users/PulseNet.Users.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Mongo__ConnectionString=mongodb://mongo-users:27017
+      - Mongo__DatabaseName=pulsenet_users
+    networks:
+      - internal_net
+    depends_on:
+      - mongo-users
+    restart: unless-stopped
+
+  # ──────────────────────────────────────
+  # POSTS SERVICE
+  # ──────────────────────────────────────
+  posts:
+    build:
+      context: ..
+      dockerfile: src/Services/Posts/PulseNet.Posts.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Mongo__ConnectionString=mongodb://mongo-posts:27017
+      - Mongo__DatabaseName=pulsenet_posts
+    networks:
+      - internal_net
+    depends_on:
+      - mongo-posts
+    restart: unless-stopped
+
+  # ──────────────────────────────────────
+  # FOLLOWS SERVICE
+  # ──────────────────────────────────────
+  follows:
+    build:
+      context: ..
+      dockerfile: src/Services/Follows/PulseNet.Follows.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Mongo__ConnectionString=mongodb://mongo-follows:27017
+      - Mongo__DatabaseName=pulsenet_follows
+    networks:
+      - internal_net
+    depends_on:
+      - mongo-follows
+    restart: unless-stopped
+
+  # ──────────────────────────────────────
+  # TIMELINE SERVICE
+  # ──────────────────────────────────────
+  timeline:
+    build:
+      context: ..
+      dockerfile: src/Services/Timeline/PulseNet.Timeline.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Mongo__ConnectionString=mongodb://mongo-timeline:27017
+      - Mongo__DatabaseName=pulsenet_timeline
+    networks:
+      - internal_net
+    depends_on:
+      - mongo-timeline
+    restart: unless-stopped
+
+  # ──────────────────────────────────────
+  # MONGODB INSTANCES (one per service)
+  # ──────────────────────────────────────
+  mongo-auth:
+    image: mongo:7
+    volumes:
+      - mongo-auth-data:/data/db
+    networks:
+      - internal_net
+    restart: unless-stopped
+
+  mongo-users:
+    image: mongo:7
+    volumes:
+      - mongo-users-data:/data/db
+    networks:
+      - internal_net
+    restart: unless-stopped
+
+  mongo-posts:
+    image: mongo:7
+    volumes:
+      - mongo-posts-data:/data/db
+    networks:
+      - internal_net
+    restart: unless-stopped
+
+  mongo-follows:
+    image: mongo:7
+    volumes:
+      - mongo-follows-data:/data/db
+    networks:
+      - internal_net
+    restart: unless-stopped
+
+  mongo-timeline:
+    image: mongo:7
+    volumes:
+      - mongo-timeline-data:/data/db
+    networks:
+      - internal_net
+    restart: unless-stopped
+
+  # ──────────────────────────────────────
+  # OBSERVABILITY
+  # ──────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - internal_net
+      - public_net
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - internal_net
+      - public_net
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  mongo-auth-data:
+  mongo-users-data:
+  mongo-posts-data:
+  mongo-follows-data:
+  mongo-timeline-data:
+  prometheus-data:
+  grafana-data:

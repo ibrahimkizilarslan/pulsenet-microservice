@@ -1,0 +1,166 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Follows/PulseNet.Follows.Api/PulseNet.Follows.Api.csproj": {}
+  },
+  "projects": {
+    "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/PulseNet.BuildingBlocks.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/PulseNet.BuildingBlocks.csproj",
+        "projectName": "PulseNet.BuildingBlocks",
+        "projectPath": "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/PulseNet.BuildingBlocks.csproj",
+        "packagesPath": "/home/ibrahimkizilarslan/.nuget/packages/",
+        "outputPath": "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/ibrahimkizilarslan/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/usr/lib/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[2.28.0, )"
+            },
+            "Serilog.AspNetCore": {
+              "target": "Package",
+              "version": "[8.0.3, )"
+            },
+            "Serilog.Sinks.Console": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "prometheus-net.AspNetCore": {
+              "target": "Package",
+              "version": "[8.2.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Follows/PulseNet.Follows.Api/PulseNet.Follows.Api.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Follows/PulseNet.Follows.Api/PulseNet.Follows.Api.csproj",
+        "projectName": "PulseNet.Follows.Api",
+        "projectPath": "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Follows/PulseNet.Follows.Api/PulseNet.Follows.Api.csproj",
+        "packagesPath": "/home/ibrahimkizilarslan/.nuget/packages/",
+        "outputPath": "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Follows/PulseNet.Follows.Api/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/ibrahimkizilarslan/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/usr/lib/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/PulseNet.BuildingBlocks.csproj": {
+                "projectPath": "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/PulseNet.BuildingBlocks.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.NETCore.App.Host.linux-x64",
+              "version": "[9.0.13, 9.0.13]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

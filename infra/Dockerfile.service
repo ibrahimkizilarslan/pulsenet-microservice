@@ -1,0 +1,21 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG SERVICE_NAME
+ARG SERVICE_PATH
+
+WORKDIR /src
+COPY ["src/BuildingBlocks/PulseNet.BuildingBlocks/PulseNet.BuildingBlocks.csproj", "src/BuildingBlocks/PulseNet.BuildingBlocks/"]
+COPY ["${SERVICE_PATH}/${SERVICE_NAME}.csproj", "${SERVICE_PATH}/"]
+RUN dotnet restore "${SERVICE_PATH}/${SERVICE_NAME}.csproj"
+
+COPY src/BuildingBlocks/ src/BuildingBlocks/
+COPY ${SERVICE_PATH}/ ${SERVICE_PATH}/
+WORKDIR /src/${SERVICE_PATH}
+RUN dotnet publish -c Release -o /app/publish --no-restore
+
+FROM base AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet"]

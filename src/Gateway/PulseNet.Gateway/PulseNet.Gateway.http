@@ -1,0 +1,6 @@
+@PulseNet.Gateway_HostAddress = http://localhost:5113
+
+GET {{PulseNet.Gateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
