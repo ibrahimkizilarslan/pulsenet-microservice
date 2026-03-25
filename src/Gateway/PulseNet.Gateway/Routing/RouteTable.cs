@@ -1,7 +1,14 @@
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace PulseNet.Gateway.Routing;
 
 public sealed class RouteConfig
 {
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string? Id { get; set; }
+    
     public required string PathPrefix { get; init; }
     public required string DownstreamHost { get; init; }
     public bool RequiresAuth { get; init; } = true;
