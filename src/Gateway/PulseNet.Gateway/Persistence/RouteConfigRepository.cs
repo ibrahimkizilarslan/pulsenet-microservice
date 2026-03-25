@@ -16,11 +16,15 @@ public sealed class RouteConfigRepository
 
     public async Task<List<RouteConfig>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        return await _collection.Find(_ => true).ToListAsync();
     }
 
     public async Task SeedIfEmptyAsync(IEnumerable<RouteConfig> defaultRoutes)
     {
-        throw new NotImplementedException();
+        var count = await _collection.EstimatedDocumentCountAsync();
+        if (count == 0 && defaultRoutes.Any())
+        {
+            await _collection.InsertManyAsync(defaultRoutes);
+        }
     }
 }

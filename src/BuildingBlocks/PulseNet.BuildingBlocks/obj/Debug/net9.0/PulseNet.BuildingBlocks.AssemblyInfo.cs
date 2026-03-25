@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PulseNet.BuildingBlocks")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+709d5e548d83281a3383f6fd8879002aa094842f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3ca6af621280479ee0eb12d8014bb84a4a8eefbd")]
 [assembly: System.Reflection.AssemblyProductAttribute("PulseNet.BuildingBlocks")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PulseNet.BuildingBlocks")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
