@@ -6,6 +6,9 @@ using PulseNet.Gateway.Forwarding;
 using PulseNet.Gateway.Routing;
 using Serilog;
 
+using MongoDB.Driver;
+using PulseNet.Gateway.Persistence;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, configuration) =>
@@ -17,6 +20,13 @@ builder.Host.UseSerilog((context, configuration) =>
         .WriteTo.Console(outputTemplate:
             "[{Timestamp:HH:mm:ss} {Level:u3}] [Gateway] {Message:lj} {Properties:j}{NewLine}{Exception}");
 });
+
+var mongoConnString = builder.Configuration["Mongo:ConnectionString"] ?? "mongodb://localhost:27017";
+var mongoDatabase = new MongoClient(mongoConnString)
+    .GetDatabase(builder.Configuration["Mongo:DatabaseName"] ?? "pulsenet_gateway");
+
+builder.Services.AddSingleton(mongoDatabase);
+builder.Services.AddScoped<RouteConfigRepository>();
 
 builder.Services.AddPulseNetJwt(builder.Configuration);
 
@@ -31,6 +41,26 @@ builder.Services.AddHttpClient("gateway", client =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var repo = scope.ServiceProvider.GetRequiredService<RouteConfigRepository>();
+    var routeTable = scope.ServiceProvider.GetRequiredService<RouteTable>();
+
+    var defaultRoutes = new List<RouteConfig>
+    {
+        new RouteConfig { PathPrefix = "/api/auth", DownstreamHost = "http://auth:5001", RequiresAuth = false },
+        new RouteConfig { PathPrefix = "/api/users", DownstreamHost = "http://users:5002", RequiresAuth = true },
+        new RouteConfig { PathPrefix = "/api/posts", DownstreamHost = "http://posts:5003", RequiresAuth = true },
+        new RouteConfig { PathPrefix = "/api/follows", DownstreamHost = "http://follows:5004", RequiresAuth = true },
+        new RouteConfig { PathPrefix = "/api/timeline", DownstreamHost = "http://timeline:5005", RequiresAuth = true }
+    };
+    
+    // We run it synchronously to guarantee routes are loaded before app serves requests.
+    repo.SeedIfEmptyAsync(defaultRoutes).GetAwaiter().GetResult();
+    var routes = repo.GetAllAsync().GetAwaiter().GetResult();
+    routeTable.UpdateRoutes(routes);
+}
 
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseSerilogRequestLogging();

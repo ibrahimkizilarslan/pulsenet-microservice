@@ -17,43 +17,11 @@ public sealed class RouteConfig
 
 public sealed class RouteTable
 {
-    private readonly List<RouteConfig> _routes = [];
+    private List<RouteConfig> _routes = [];
 
-    public RouteTable()
+    public void UpdateRoutes(IEnumerable<RouteConfig> routes)
     {
-        _routes.AddRange(
-        [
-            new RouteConfig
-            {
-                PathPrefix = "/api/auth",
-                DownstreamHost = "http://auth:5001",
-                RequiresAuth = false
-            },
-            new RouteConfig
-            {
-                PathPrefix = "/api/users",
-                DownstreamHost = "http://users:5002",
-                RequiresAuth = true
-            },
-            new RouteConfig
-            {
-                PathPrefix = "/api/posts",
-                DownstreamHost = "http://posts:5003",
-                RequiresAuth = true
-            },
-            new RouteConfig
-            {
-                PathPrefix = "/api/follows",
-                DownstreamHost = "http://follows:5004",
-                RequiresAuth = true
-            },
-            new RouteConfig
-            {
-                PathPrefix = "/api/timeline",
-                DownstreamHost = "http://timeline:5005",
-                RequiresAuth = true
-            }
-        ]);
+        _routes = routes.ToList();
     }
 
     public IReadOnlyList<RouteConfig> Routes => _routes.AsReadOnly();
