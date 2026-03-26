@@ -11,6 +11,22 @@ using PulseNet.Gateway.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// CORS: allow WebUI (dev) to call the gateway directly.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("webui", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "http://localhost:5000",
+                "http://127.0.0.1:5000")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 builder.Host.UseSerilog((context, configuration) =>
 {
     configuration
@@ -64,6 +80,8 @@ using (var scope = app.Services.CreateScope())
 
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseSerilogRequestLogging();
+
+app.UseCors("webui");
 
 app.UseAuthentication();
 app.UseAuthorization();

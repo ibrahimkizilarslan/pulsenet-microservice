@@ -38,6 +38,22 @@ services:
     restart: unless-stopped
 
   # ──────────────────────────────────────
+  # WEB UI (Frontend Proxy)
+  # ──────────────────────────────────────
+  webui:
+    build:
+      context: ../src/WebUI
+      dockerfile: Dockerfile
+    ports:
+      - "5000:3000"
+    networks:
+      - public_net
+      - internal_net
+    depends_on:
+      - gateway
+    restart: unless-stopped
+
+  # ──────────────────────────────────────
   # AUTH SERVICE
   # ──────────────────────────────────────
   auth:
@@ -136,6 +152,7 @@ services:
       - mongo-gateway-data:/data/db
     networks:
       - internal_net
+      - public_net
     restart: unless-stopped
 
   mongo-auth:
@@ -146,6 +163,7 @@ services:
       - mongo-auth-data:/data/db
     networks:
       - internal_net
+      - public_net
     restart: unless-stopped
 
   mongo-users:
@@ -156,6 +174,7 @@ services:
       - mongo-users-data:/data/db
     networks:
       - internal_net
+      - public_net
     restart: unless-stopped
 
   mongo-posts:
@@ -166,6 +185,7 @@ services:
       - mongo-posts-data:/data/db
     networks:
       - internal_net
+      - public_net
     restart: unless-stopped
 
   mongo-follows:
@@ -176,6 +196,7 @@ services:
       - mongo-follows-data:/data/db
     networks:
       - internal_net
+      - public_net
     restart: unless-stopped
 
   mongo-timeline:
@@ -186,38 +207,39 @@ services:
       - mongo-timeline-data:/data/db
     networks:
       - internal_net
-    restart: unless-stopped
-
-  # ──────────────────────────────────────
-  # OBSERVABILITY
-  # ──────────────────────────────────────
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-    ports:
-      - "9090:9090"
-    networks:
-      - internal_net
       - public_net
     restart: unless-stopped
 
-  grafana:
-    image: grafana/grafana:latest
-    volumes:
-      - grafana-data:/var/lib/grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    networks:
-      - internal_net
-      - public_net
-    depends_on:
-      - prometheus
-    restart: unless-stopped
+  # ──────────────────────────────────────
+  # OBSERVABILITY (DISABLED FOR NOW)
+  # ──────────────────────────────────────
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   volumes:
+  #     - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus-data:/prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   networks:
+  #     - internal_net
+  #     - public_net
+  #   restart: unless-stopped
+
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - GF_SECURITY_ADMIN_USER=admin
+  #     - GF_SECURITY_ADMIN_PASSWORD=admin
+  #   networks:
+  #     - internal_net
+  #     - public_net
+  #   depends_on:
+  #     - prometheus
+  #   restart: unless-stopped
 
 volumes:
   mongo-gateway-data:
@@ -226,5 +248,5 @@ volumes:
   mongo-posts-data:
   mongo-follows-data:
   mongo-timeline-data:
-  prometheus-data:
-  grafana-data:
+  # prometheus-data:
+  # grafana-data:
