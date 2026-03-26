@@ -6,16 +6,8 @@ using Serilog;
 
 namespace PulseNet.BuildingBlocks;
 
-/// <summary>
-/// Projedeki tüm mikroservisler için ortak olan varsayılan yapılandırmaları ve ara yazılımları (middleware) barındırır.
-/// </summary>
 public static class ServiceDefaults
 {
-    /// <summary>
-    /// Servis oluşturulurken Serilog loglaması gibi standart hizmetleri uygulama bağımlılıklarına (DI) ekler.
-    /// </summary>
-    /// <param name="builder">Web uygulaması oluşturucu nesnesi.</param>
-    /// <returns>Servisleri eklenmiş WebApplicationBuilder nesnesi döner.</returns>
     public static WebApplicationBuilder AddServiceDefaults(this WebApplicationBuilder builder)
     {
         // Merkezi loglama için Serilog yapılandırması ayarlanıyor.
@@ -32,12 +24,6 @@ public static class ServiceDefaults
         return builder;
     }
 
-    /// <summary>
-    /// HTTP istekleri (Request Pipeline) sırasında çalışması gereken zorunlu ortak ara yazılımları ekler.
-    /// Correlation ID takibi, İç Gateway doğrulaması ve Serilog istek loglaması işlemlerini içerir.
-    /// </summary>
-    /// <param name="app">Web uygulaması nesnesi.</param>
-    /// <returns>Ara yazılımları (middleware) eklenmiş WebApplication nesnesi döner.</returns>
     public static WebApplication UseServiceDefaults(this WebApplication app)
     {
         // Gelen her isteğe sistem boyunca izlenebilmesi için özel bir 'CorrelationId' atar (Log takibi için).
