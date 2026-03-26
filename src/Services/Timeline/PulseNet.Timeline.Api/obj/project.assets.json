@@ -2310,33 +2310,39 @@
     ]
   },
   "packageFolders": {
-    "/home/ibrahimkizilarslan/.nuget/packages/": {}
+    "C:\\Users\\karat\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Timeline/PulseNet.Timeline.Api/PulseNet.Timeline.Api.csproj",
+      "projectUniqueName": "C:\\Users\\karat\\OneDrive\\Desktop\\yazlab2 proje 1\\src\\Services\\Timeline\\PulseNet.Timeline.Api\\PulseNet.Timeline.Api.csproj",
       "projectName": "PulseNet.Timeline.Api",
-      "projectPath": "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Timeline/PulseNet.Timeline.Api/PulseNet.Timeline.Api.csproj",
-      "packagesPath": "/home/ibrahimkizilarslan/.nuget/packages/",
-      "outputPath": "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Timeline/PulseNet.Timeline.Api/obj/",
+      "projectPath": "C:\\Users\\karat\\OneDrive\\Desktop\\yazlab2 proje 1\\src\\Services\\Timeline\\PulseNet.Timeline.Api\\PulseNet.Timeline.Api.csproj",
+      "packagesPath": "C:\\Users\\karat\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\karat\\OneDrive\\Desktop\\yazlab2 proje 1\\src\\Services\\Timeline\\PulseNet.Timeline.Api\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/home/ibrahimkizilarslan/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\karat\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
-        "/usr/lib/dotnet/library-packs": {},
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/PulseNet.BuildingBlocks.csproj": {
-              "projectPath": "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/BuildingBlocks/PulseNet.BuildingBlocks/PulseNet.BuildingBlocks.csproj"
+            "C:\\Users\\karat\\OneDrive\\Desktop\\yazlab2 proje 1\\src\\BuildingBlocks\\PulseNet.BuildingBlocks\\PulseNet.BuildingBlocks.csproj": {
+              "projectPath": "C:\\Users\\karat\\OneDrive\\Desktop\\yazlab2 proje 1\\src\\BuildingBlocks\\PulseNet.BuildingBlocks\\PulseNet.BuildingBlocks.csproj"
             }
           }
         }
@@ -2351,7 +2357,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net9.0": {
@@ -2367,12 +2373,6 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.NETCore.App.Host.linux-x64",
-            "version": "[9.0.13, 9.0.13]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.AspNetCore.App": {
             "privateAssets": "none"
@@ -2381,7 +2381,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
