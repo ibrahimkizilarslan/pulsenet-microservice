@@ -130,6 +130,8 @@ services:
   # ──────────────────────────────────────
   mongo-gateway:
     image: mongo:7
+    ports:
+      - "27017:27017"
     volumes:
       - mongo-gateway-data:/data/db
     networks:
@@ -138,6 +140,8 @@ services:
 
   mongo-auth:
     image: mongo:7
+    ports:
+      - "27018:27017"
     volumes:
       - mongo-auth-data:/data/db
     networks:
@@ -146,6 +150,8 @@ services:
 
   mongo-users:
     image: mongo:7
+    ports:
+      - "27019:27017"
     volumes:
       - mongo-users-data:/data/db
     networks:
@@ -154,6 +160,8 @@ services:
 
   mongo-posts:
     image: mongo:7
+    ports:
+      - "27020:27017"
     volumes:
       - mongo-posts-data:/data/db
     networks:
@@ -162,6 +170,8 @@ services:
 
   mongo-follows:
     image: mongo:7
+    ports:
+      - "27021:27017"
     volumes:
       - mongo-follows-data:/data/db
     networks:
@@ -170,6 +180,8 @@ services:
 
   mongo-timeline:
     image: mongo:7
+    ports:
+      - "27022:27017"
     volumes:
       - mongo-timeline-data:/data/db
     networks:
