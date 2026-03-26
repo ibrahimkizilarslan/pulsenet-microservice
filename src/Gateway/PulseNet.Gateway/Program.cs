@@ -66,7 +66,7 @@ using (var scope = app.Services.CreateScope())
         new RouteConfig { PathPrefix = "/api/timeline", DownstreamHost = "http://timeline:5005", RequiresAuth = true }
     };
     
-    // We run it synchronously to guarantee routes are loaded before app serves requests.
+    // Uygulamanın isteklere yanıt vermeye başlamadan önce rotaların yüklendiğini garanti etmek için senkron olarak çalıştırıyoruz.
     repo.SeedIfEmptyAsync(defaultRoutes).GetAwaiter().GetResult();
     var routes = repo.GetAllAsync().GetAwaiter().GetResult();
     routeTable.UpdateRoutes(routes);
