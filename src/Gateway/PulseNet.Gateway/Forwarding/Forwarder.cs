@@ -59,7 +59,9 @@ public sealed class Forwarder
 
             if (bodyStream.Length > 0)
             {
-                requestMessage.Content = new StreamContent(bodyStream);
+                // StreamContent yerine ByteArrayContent kullanmak, downstream tarafında JSON model binding'in
+                // "boş/okunamadı" gibi durumlarını daha az tetikler.
+                requestMessage.Content = new ByteArrayContent(bodyStream.ToArray());
                 if (context.Request.ContentType is not null)
                     requestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(context.Request.ContentType);
             }

@@ -35,6 +35,16 @@ builder.Services.AddSingleton<RouteMatcher>();
 builder.Services.AddSingleton<GatewayAuthZ>();
 builder.Services.AddScoped<Forwarder>();
 
+// Browser'dan `fetch(..., { method: "POST" })` ile istek atılırken CORS preflight (`OPTIONS`) gelir.
+// Gateway bunu forward etmeye çalışmasın diye CORS middleware ekliyoruz.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 builder.Services.AddHttpClient("gateway", client =>
 {
     client.Timeout = TimeSpan.FromSeconds(30);
@@ -63,7 +73,18 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseMiddleware<CorrelationIdMiddleware>();
+
+// Forwarder request body'yi okuyacağı için (downstream'a iletmek üzere) burada buffer'lıyoruz.
+// Aksi halde bazı middleware'ler body'yi tüketip downstream'a boş body gitmesine sebep olabiliyor.
+app.Use(async (context, next) =>
+{
+    context.Request.EnableBuffering();
+    await next();
+});
+
 app.UseSerilogRequestLogging();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -73,6 +94,8 @@ app.MapGet("/health", async (HttpContext context) =>
     context.Response.ContentType = "application/json";
     await context.Response.WriteAsync(JsonSerializer.Serialize(new { status = "healthy", service = "gateway" }));
 });
+
+app.MapGet("/", () => Results.Ok(new { status = "running", service = "gateway" }));
 
 app.Map("/api/{**catch-all}", async (HttpContext context) =>
 {
