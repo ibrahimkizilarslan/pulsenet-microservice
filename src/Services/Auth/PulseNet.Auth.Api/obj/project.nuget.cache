@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "nU+wNQ2zdA4=",
+  "dgSpecHash": "lWd94uSDL0s=",
   "success": true,
   "projectFilePath": "/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Auth/PulseNet.Auth.Api/PulseNet.Auth.Api.csproj",
   "expectedPackageFiles": [
@@ -56,7 +56,7 @@
     "/home/ibrahimkizilarslan/.nuget/packages/system.security.accesscontrol/5.0.0/system.security.accesscontrol.5.0.0.nupkg.sha512",
     "/home/ibrahimkizilarslan/.nuget/packages/system.security.principal.windows/5.0.0/system.security.principal.windows.5.0.0.nupkg.sha512",
     "/home/ibrahimkizilarslan/.nuget/packages/zstdsharp.port/0.7.3/zstdsharp.port.0.7.3.nupkg.sha512",
-    "/home/ibrahimkizilarslan/.nuget/packages/microsoft.netcore.app.host.linux-x64/9.0.13/microsoft.netcore.app.host.linux-x64.9.0.13.nupkg.sha512"
+    "/home/ibrahimkizilarslan/.nuget/packages/microsoft.netcore.app.host.linux-x64/9.0.14/microsoft.netcore.app.host.linux-x64.9.0.14.nupkg.sha512"
   ],
   "logs": []
 }

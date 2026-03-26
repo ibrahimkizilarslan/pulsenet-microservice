@@ -46,6 +46,12 @@ public static class UsersEndpoints
             return Results.Ok(profile);
         });
 
+        group.MapDelete("/{id}", async (string id, UsersRepository repo) =>
+        {
+            var deleted = await repo.DeleteAsync(id);
+            return deleted ? Results.NoContent() : Results.NotFound();
+        });
+
         group.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "users" }));
     }
 }

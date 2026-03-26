@@ -32,6 +32,12 @@ public sealed class PostsRepository
     public async Task UpdateAsync(Post post) =>
         await _collection.ReplaceOneAsync(p => p.Id == post.Id, post);
 
-    public async Task DeleteAsync(string id) =>
-        await _collection.DeleteOneAsync(p => p.Id == id);
+    public async Task<List<Post>> GetAllAsync() =>
+        await _collection.Find(_ => true).SortByDescending(p => p.CreatedAt).ToListAsync();
+
+    public async Task<bool> DeleteAsync(string id)
+    {
+        var result = await _collection.DeleteOneAsync(p => p.Id == id);
+        return result.DeletedCount > 0;
+    }
 }

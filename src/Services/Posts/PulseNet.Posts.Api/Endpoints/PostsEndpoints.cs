@@ -9,6 +9,12 @@ public static class PostsEndpoints
     {
         var group = app.MapGroup("/api/posts");
 
+        group.MapGet("/", async (PostsRepository repo) =>
+        {
+            var posts = await repo.GetAllAsync();
+            return Results.Ok(posts);
+        });
+
         group.MapGet("/{id}", async (string id, PostsRepository repo) =>
         {
             var post = await repo.GetByIdAsync(id);
@@ -53,8 +59,8 @@ public static class PostsEndpoints
 
         group.MapDelete("/{id}", async (string id, PostsRepository repo) =>
         {
-            await repo.DeleteAsync(id);
-            return Results.NoContent();
+            var deleted = await repo.DeleteAsync(id);
+            return deleted ? Results.NoContent() : Results.NotFound();
         });
 
         group.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "posts" }));

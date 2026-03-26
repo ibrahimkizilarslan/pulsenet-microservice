@@ -1,8 +1,9 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
+COPY Directory.Build.props ./
 COPY ["src/BuildingBlocks/PulseNet.BuildingBlocks/PulseNet.BuildingBlocks.csproj", "src/BuildingBlocks/PulseNet.BuildingBlocks/"]
 COPY ["src/Services/Users/PulseNet.Users.Api/PulseNet.Users.Api.csproj", "src/Services/Users/PulseNet.Users.Api/"]
 RUN dotnet restore "src/Services/Users/PulseNet.Users.Api/PulseNet.Users.Api.csproj"

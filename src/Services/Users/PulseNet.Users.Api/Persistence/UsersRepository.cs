@@ -23,4 +23,10 @@ public sealed class UsersRepository
 
     public async Task UpdateAsync(UserProfile profile) =>
         await _collection.ReplaceOneAsync(u => u.Id == profile.Id, profile);
+
+    public async Task<bool> DeleteAsync(string id)
+    {
+        var result = await _collection.DeleteOneAsync(u => u.Id == id);
+        return result.DeletedCount > 0;
+    }
 }
