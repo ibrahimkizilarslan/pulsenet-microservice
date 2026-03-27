@@ -1,9 +1,9 @@
 'use client';
 
-import Sidebar from '@/components/Sidebar';
-import RightSidebar from '@/components/RightSidebar';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { authApi } from '@/lib/api';
 
 export default function AppLayout({
   children,
@@ -24,22 +24,41 @@ export default function AppLayout({
 
   if (!isReady) return <div className="min-h-screen bg-black" />;
 
-  return (
-    <div className="flex w-full min-h-screen">
-      {/* Left Sidebar */}
-      <header className="flex-none w-[70px] xl:w-[275px] h-screen sticky top-0 overflow-y-auto">
-        <Sidebar />
-      </header>
+  const savedUser =
+    typeof window !== 'undefined' ? localStorage.getItem('pulsenet_user') : null;
+  const user = savedUser ? JSON.parse(savedUser) : null;
 
-      {/* Main Feed */}
-      <main className="flex-1 max-w-[600px] border-r border-border min-h-screen">
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <header className="sticky top-0 z-20 border-b border-border bg-black/90 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-3">
+          <Link href="/" className="text-lg font-bold tracking-tight">
+            PulseNet
+          </Link>
+          <div className="flex items-center gap-2">
+            {user?.username ? (
+              <Link
+                href={`/profile/${encodeURIComponent(user.username)}`}
+                className="rounded-full px-3 py-1 text-sm text-gray-300 hover:bg-muted"
+              >
+                @{user.username}
+              </Link>
+            ) : null}
+            <button
+              onClick={() => {
+                authApi.logout();
+                router.replace('/login');
+              }}
+              className="btn-outline text-sm"
+            >
+              Cikis
+            </button>
+          </div>
+        </div>
+      </header>
+      <main className="mx-auto w-full max-w-3xl border-x border-border min-h-screen">
         {children}
       </main>
-
-      {/* Right Sidebar */}
-      <aside className="hidden lg:flex flex-none w-[350px] xl:w-[400px] h-screen sticky top-0 overflow-y-auto">
-        <RightSidebar />
-      </aside>
     </div>
   );
 }

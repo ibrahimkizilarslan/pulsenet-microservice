@@ -209,7 +209,6 @@ services:
       - internal_net
       - public_net
     restart: unless-stopped
-
   # ──────────────────────────────────────
   # OBSERVABILITY (DISABLED FOR NOW)
   # ──────────────────────────────────────
@@ -226,15 +225,7 @@ services:
   #   restart: unless-stopped
 
   # grafana:
-  #   image: grafana/grafana:latest
-  #   volumes:
-  #     - grafana-data:/var/lib/grafana
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - GF_SECURITY_ADMIN_USER=admin
-  #     - GF_SECURITY_ADMIN_PASSWORD=admin
-  #   networks:
+  #   image: grafana/grafana:latest  #   networks:
   #     - internal_net
   #     - public_net
   #   depends_on:
@@ -248,5 +239,17 @@ volumes:
   mongo-posts-data:
   mongo-follows-data:
   mongo-timeline-data:
-  # prometheus-data:
-  # grafana-data:
+    # prometheus-data:
+    # grafana-data:
+
+    #   ports:
+    #     - "3000:3000"
+    #   environment:
+    #     - GF_SECURITY_ADMIN_USER=admin
+    #     - GF_SECURITY_ADMIN_PASSWORD=admin
+    #   networks:
+    #     - internal_net
+    #     - public_net
+    #   depends_on:
+    #     - prometheus
+    #   restart: unless-stopped
