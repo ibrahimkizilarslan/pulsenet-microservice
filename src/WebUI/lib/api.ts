@@ -1,50 +1,63 @@
-import { getToken } from "@/lib/auth";
+import axios from 'axios';
 
-export const GATEWAY_BASE_URL =
-  process.env.NEXT_PUBLIC_GATEWAY_BASE_URL ?? "http://localhost:8080";
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-export class ApiError extends Error {
-  status: number;
-  payload: unknown;
-  constructor(status: number, payload: unknown) {
-    super(`API Error (${status})`);
-    this.status = status;
-    this.payload = payload;
+// Request interceptor to add JWT token
+api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('pulsenet_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
-}
+  return config;
+});
 
-async function parseJsonSafely(res: Response): Promise<unknown> {
-  const text = await res.text();
-  if (!text) return null;
-  try {
-    return JSON.parse(text);
-  } catch {
-    return text;
-  }
-}
+// Auth
+export const authApi = {
+  login: (credentials: any) => api.post('/auth/login', credentials),
+  register: (credentials: any) => api.post('/auth/register', credentials),
+  logout: () => {
+    localStorage.removeItem('pulsenet_token');
+    localStorage.removeItem('pulsenet_user');
+  },
+};
 
-export async function api<T>(
-  path: string,
-  init: RequestInit & { auth?: boolean } = {},
-): Promise<T> {
-  const url = path.startsWith("http") ? path : `${GATEWAY_BASE_URL}${path}`;
-  const headers = new Headers(init.headers);
-  headers.set("Accept", "application/json");
+// Posts
+export const postsApi = {
+  getRecent: () => api.get('/posts/recent'),
+  getById: (id: string) => api.get(`/posts/${id}`),
+  getByAuthor: (authorId: string) => api.get(`/posts/by-author/${authorId}`),
+  create: (post: { content: string; authorId: string; tags: string[] }) =>
+    api.post('/posts', post),
+};
 
-  const hasBody = init.body !== undefined && init.body !== null;
-  if (hasBody && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
+// Users
+export const usersApi = {
+  getById: (id: string) => api.get(`/users/${id}`),
+  getByUsername: (username: string) => api.get(`/users/by-username/${username}`),
+  createProfile: (profile: any) => api.post('/users', profile),
+  updateProfile: (id: string, profile: any) => api.put(`/users/${id}`, profile),
+};
 
-  if (init.auth !== false) {
-    const token = typeof window === "undefined" ? null : getToken();
-    if (token) headers.set("Authorization", `Bearer ${token}`);
-  }
+// Follows
+export const followsApi = {
+  follow: (followerId: string, followeeId: string) =>
+    api.post('/follows', { followerId, followeeId }),
+  unfollow: (followerId: string, followeeId: string) =>
+    api.delete(`/follows/${followerId}/${followeeId}`),
+  getFollowers: (userId: string) => api.get(`/follows/followers/${userId}`),
+  getFollowing: (userId: string) => api.get(`/follows/following/${userId}`),
+};
 
-  const res = await fetch(url, { ...init, headers, cache: "no-store" });
-  if (!res.ok) {
-    throw new ApiError(res.status, await parseJsonSafely(res));
-  }
-  return (await parseJsonSafely(res)) as T;
-}
+// Timeline
+export const timelineApi = {
+  getTimeline: (userId: string) => api.get(`/timeline/${userId}`),
+};
 
+export default api;

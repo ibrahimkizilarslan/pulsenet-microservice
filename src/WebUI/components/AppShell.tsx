@@ -5,8 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { clearToken, getSession } from "@/lib/auth";
 
 const tabs = [
-  { href: "/home", label: "Home" },
-  { href: "/explore", label: "Explore" },
+  { href: "/home", label: "Pulse" },
+  { href: "/explore", label: "Kesfet" },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -16,9 +16,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-[100svh] bg-app">
-      <div className="mx-auto max-w-5xl px-4 py-6">
-        <header className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 backdrop-blur">
-          <Link href="/" className="text-sm font-semibold tracking-tight text-white">
+      <div className="mx-auto max-w-6xl px-4 py-5">
+        <header className="pn-shell flex items-center justify-between gap-3 px-4 py-3">
+          <Link href="/" className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+            <span className="inline-block h-2.5 w-2.5 rounded-full bg-emerald-300" />
             PulseNet
           </Link>
 
@@ -30,8 +31,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 className={[
                   "rounded-full px-3 py-1.5 text-xs font-semibold transition",
                   pathname?.startsWith(t.href)
-                    ? "bg-white text-black"
-                    : "text-white/70 hover:bg-white/10 hover:text-white",
+                    ? "bg-slate-100 text-slate-900"
+                    : "text-slate-300 hover:bg-slate-700/40 hover:text-slate-100",
                 ].join(" ")}
               >
                 {t.label}
@@ -42,14 +43,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2">
             {session?.username ? (
               <Link
-                className="rounded-full px-3 py-1.5 text-xs font-semibold text-white/80 hover:bg-white/10"
+                className="rounded-full px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-slate-700/30"
                 href={`/u/${encodeURIComponent(session.username)}`}
               >
                 @{session.username}
               </Link>
             ) : null}
             <button
-              className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/80 hover:bg-white/10"
+              className="btn btn-danger"
               onClick={() => {
                 clearToken();
                 router.replace("/login");
@@ -60,13 +61,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="mt-4 grid gap-4 md:grid-cols-[1fr_320px]">
-          <section className="rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur">
+        <main className="mt-4 grid gap-4 md:grid-cols-[1fr_300px]">
+          <section className="pn-shell p-4">
             {children}
           </section>
-          <aside className="rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur">
-            <div className="text-xs font-semibold text-white/80">Endpoint uyumu</div>
-            <div className="mt-2 text-xs leading-5 text-white/60">
+          <aside className="pn-shell p-4">
+            <div className="pn-title text-slate-100">PulseNet endpoint matrisi</div>
+            <div className="mt-2 space-y-1 text-xs leading-5 pn-muted">
               <div>- Auth: `POST /api/auth/login|register`</div>
               <div>- Users: `GET /api/users/by-username/{`{username}`}`</div>
               <div>- Posts: `GET /api/posts/recent`, `POST /api/posts`</div>
@@ -74,6 +75,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 - Follows: `GET /api/follows/followers|following/{`{userId}`}`
               </div>
               <div>- Timeline: `GET /api/timeline/{`{userId}`}`</div>
+            </div>
+            <div className="mt-4 rounded-xl border border-sky-300/30 bg-sky-300/10 p-3 text-xs text-sky-100">
+              UI yenilendi, backend davranisi korunuyor.
             </div>
           </aside>
         </main>
