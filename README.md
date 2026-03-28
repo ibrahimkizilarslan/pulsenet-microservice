@@ -109,10 +109,46 @@ Mimarinin yoğun trafiğe karşı dayanıklılığını ölçmek adına profesyo
 
 ## 📸 Ekran Görüntüleri ve Çıktılar
 
-> *(Geliştirme süreci tamamlandığında görseller güncellenecektir)*
-> - 🖼️ **Grafana Dashboard:** API trafiği ve genel hata logları ekran görüntüsü.
-> - 🚦 **Yük Testi Raporu:** JMeter/k6 raporları (50, 100, 200 eş zamanlı kullanıcı istek senaryoları).
-> - 🛡️ **Network Isolation Kanıtı:** Ağa dışarıdan istek atıldığında servisin Red/Block vermesi görseli.
+Aşağıda projemizin çeşitli özelliklerine, mimari katmanlarına ve test süreçlerine ait ekran görüntüleri bulunmaktadır. Görseller, ilgili oldukları kavramlara göre kategorize edilmiştir.
+
+### 🛡️ Mikroservis İzolasyonu ve Güvenlik
+Ağ İzolasyonu (Network Isolation) ve API Gateway üzerindeki güvenlik önlemleri:
+- **Mikroservis İzolasyonu ve Güvenlik 1:**
+  ![Mikroservis İzolasyonu ve Güvenlik 1](images/Mikroservis%20%C4%B0zolasyonu%20ve%20G%C3%BCvenlik/Mikroservis%20%C4%B0zolasyonu%20ve%20G%C3%BCvenlik%201.jpeg)
+- **Mikroservis İzolasyonu ve Güvenlik 2:**
+  ![Mikroservis İzolasyonu ve Güvenlik 2](images/Mikroservis%20%C4%B0zolasyonu%20ve%20G%C3%BCvenlik/Mikroservis%20%C4%B0zolasyonu%20ve%20G%C3%BCvenlik%202.jpeg)
+
+### 📈 Richardson Olgunluk Modeli (RESTful API)
+RMM Seviye 2 standartlarına sıkı sıkıya bağlı kalınarak oluşturulan API uç noktaları ve HTTP operasyonları:
+- **Oluşturma (Create Post):**
+  ![Create Post](images/Richardson%20Olgunluk%20Modeli/Create%20Post%20.jpeg)
+- **Listeleme (Tüm Postları Listeleme):**
+  ![Tüm Postları Listeleme](images/Richardson%20Olgunluk%20Modeli/T%C3%BCm%20Postlar%C4%B1%20Listeleme,.jpeg)
+- **Güncelleme (Kayıt Güncelleme):**
+  ![Kayıt Güncelleme](images/Richardson%20Olgunluk%20Modeli/Kay%C4%B1t%20G%C3%BCncelleme.jpeg)
+- **Silme (Delete Post):**
+  ![Delete Post](images/Richardson%20Olgunluk%20Modeli/Delete%20Post.jpeg)
+- **Hata Yönetimi (Error Handling):**
+  ![Hata Yönetimi](images/Richardson%20Olgunluk%20Modeli/Hata%20Y%C3%B6netimi.jpeg)
+
+### 🗄️ Veri İzolasyonu (Database-per-service)
+Her mikroservisin kendi verilerini yönettiği izole veri mimarisi (NoSQL - MongoDB):
+- **Veri İzolasyonu:**
+  ![Veri İzolasyonu](images/Veri%20%C4%B0zolasyonu%20(NoSQL).jpeg)
+
+### 🧪 TDD ve Birim Testler
+Red-Green-Refactor test döngüsü ve Gateway için yazılmış birim test sonuçları:
+- **TDD ve Birim Testler:**
+  ![TDD ve Birim Testler](images/TDD%20ve%20Birim%20Testler.jpeg)
+
+### 📊 İzleme ve Yük Testleri
+Sistem performansını, eş zamanlı yük kapasitesini ve metrikleri izleme araçları:
+- **Grafana Dashboard:**
+  ![Grafana](images/Grafana.jpeg)
+- **Prometheus Entegrasyonu:**
+  ![Prometheus](images/Prometheus.jpeg)
+- **K6 Yük Testi:**
+  ![K6](images/K6.jpeg)
 
 ---
 
