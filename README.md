@@ -1,117 +1,34 @@
-# 🔥 PulseNet — Microservices Social Media Platform
+# 🚀 PulseNet — Microservices Social Media Platform
 
-A production-grade microservices social media platform built on .NET 8 / ASP.NET Core with MongoDB, JWT authentication, a custom API Gateway, and full observability stack.
+![TDD](https://img.shields.io/badge/TDD-Red%20Green%20Refactor-brightgreen)
+![.NET](https://img.shields.io/badge/.NET-8.0-blueviolet)
+![Architecture](https://img.shields.io/badge/Architecture-Microservices-orange)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
 
-## 🏗️ Architecture
+PulseNet, merkezinde uçtan uca yönetilen bir Dispatcher (API Gateway) olan; tamamen bağımsız ve izole mikroservislerin birbiriyle konuştuğu **TDD (Test-Driven Development)** prensipleriyle geliştirilmiş modern bir sosyal medya platformu simülasyonudur. Proje, monolitik yapıların ölçeklenme ve hata yönetimi problemlerini ortadan kaldırmak için tasarlanmıştır.
 
+## 🏗️ Sistem Mimarisi
+
+Dış dünyadan gelen tüm istekler, Network Isolation (Ağ İzolasyonu) kuralları gereği *yalnızca* Dispatcher üzerinden geçer ve ilgili iç mikroservise güvenli bir şekilde aktarılır.
+
+```mermaid
+graph TD
+    Client([Dış İstemciler - Web/Mobil]) -->|HTTP :8080| Gateway[Dispatcher / API Gateway]
+    
+    subgraph internal_net [İzole İç Ağ / Network Isolation]
+        Gateway -->|X-Internal-Gateway| Auth[Auth Service :5001]
+        Gateway -->|X-Internal-Gateway| Users[User Service :5002]
+        Gateway -->|X-Internal-Gateway| Posts[Post Service :5003]
+        Gateway -->|X-Internal-Gateway| Follow[Follow Service :5004]
+        Gateway -->|X-Internal-Gateway| Timeline[Timeline Service :5005]
+        
+        Auth --> DB1[(MongoDB - Auth)]
+        Users --> DB2[(MongoDB - Users)]
+        Posts --> DB3[(MongoDB - Posts)]
+        Follow --> DB4[(MongoDB - Follows)]
+        Timeline --> DB5[(MongoDB - Timeline)]
+    end
+
+    style Gateway fill:#f96,stroke:#333,stroke-width:2px
+    style internal_net fill:#f4f4f4,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5
 ```
-┌──────────────────────────────────────────────┐
-│              EXTERNAL CLIENTS                │
-│            (Web, Mobile, etc.)               │
-└──────────────────┬───────────────────────────┘
-                   │ :8080
-┌──────────────────▼───────────────────────────┐
-│           PulseNet.Gateway                   │
-│     (JWT Validation • Routing • Forwarding)  │
-│     X-Internal-Gateway: PulseNetSecret       │
-│     X-Correlation-Id: auto-generated         │
-└───┬────┬────┬────┬────┬──────────────────────┘
-    │    │    │    │    │     internal_net
-┌───▼┐┌──▼┐┌─▼──┐┌▼───┐┌▼───────┐
-│Auth││User││Post││Foll││Timeline│
-│:5001│:5002│:5003│:5004│ :5005  │
-└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬─────┘
-  │     │     │     │     │
-┌─▼──┐┌─▼──┐┌─▼──┐┌─▼──┐┌─▼──┐
-│Mong││Mong││Mong││Mong││Mong│  (isolated DBs)
-└────┘└────┘└────┘└────┘└────┘
-```
-
-## 📦 Solution Structure
-
-```
-PulseNet.slnx
-
-src/
-├── BuildingBlocks/PulseNet.BuildingBlocks/       # Shared: JWT, Middleware, Mongo, Serilog
-├── Gateway/PulseNet.Gateway/                     # Custom API Gateway (NO YARP)
-│   ├── Auth/GatewayAuthZ.cs                      #   JWT + role validation
-│   ├── Routing/RouteTable.cs + RouteMatcher.cs   #   Path → downstream mapping
-│   └── Forwarding/Forwarder.cs                   #   HttpClient forward logic
-└── Services/
-    ├── Auth/PulseNet.Auth.Api/                   # Register/Login + JWT issuance
-    ├── Users/PulseNet.Users.Api/                 # User profiles CRUD
-    ├── Posts/PulseNet.Posts.Api/                  # Posts CRUD
-    ├── Follows/PulseNet.Follows.Api/             # Follow/unfollow relationships
-    └── Timeline/PulseNet.Timeline.Api/           # Timeline feed
-
-tests/
-└── PulseNet.Gateway.Tests/                       # xUnit: routing, auth, error handling
-
-infra/
-├── docker-compose.yml                            # Full stack orchestration
-├── prometheus/prometheus.yml                     # Prometheus scrape configs
-└── grafana/provisioning/                         # Grafana datasource provisioning
-
-loadtest/
-└── smoke-test.js                                 # k6 load test placeholder
-```
-
-## 🚀 Quick Start
-
-### Prerequisites
-- .NET 8 SDK (or 9+)
-- Docker & Docker Compose
-
-### Run Tests
-```bash
-dotnet test tests/PulseNet.Gateway.Tests/PulseNet.Gateway.Tests.csproj
-```
-
-### Run with Docker Compose
-```bash
-cd infra
-docker-compose up --build
-```
-
-Gateway will be available at `http://localhost:8080`
-
-### API Endpoints
-| Route | Service | Auth Required |
-|-------|---------|---------------|
-| `POST /api/auth/register` | Auth | ❌ |
-| `POST /api/auth/login` | Auth | ❌ |
-| `GET /api/users/{id}` | Users | ✅ |
-| `POST /api/posts` | Posts | ✅ |
-| `GET /api/posts/recent` | Posts | ✅ |
-| `POST /api/follows` | Follows | ✅ |
-| `GET /api/timeline/{userId}` | Timeline | ✅ |
-| `GET /health` | Gateway | ❌ |
-
-## 🔒 Security
-
-- **JWT Authentication**: All services behind the gateway require a valid JWT (except `/api/auth` routes)
-- **Internal Gateway Header**: Backend services reject any request without `X-Internal-Gateway: PulseNetSecret`
-- **Network Isolation**: Only the Gateway is exposed on `public_net`. All services run on `internal_net`
-
-## 📊 Observability
-
-- **Serilog**: Structured logging with correlation IDs across all services
-- **Prometheus**: Metrics scraping at `:9090`
-- **Grafana**: Dashboard at `:3000` (admin/admin)
-
-## 🧪 Test Coverage
-
-18 tests covering:
-- **Routing**: Path-to-service mapping, subpath forwarding, unknown routes (404)
-- **Authorization**: No token (401), valid token (200), invalid token (401), expired token (401)
-- **Error Handling**: Downstream unreachable (503), timeout (504), error forwarding
-- **Infrastructure**: Internal gateway header injection, correlation ID propagation
-
-## 📐 Design Principles
-
-- **SOLID** throughout
-- **Minimal API**: Clean, concise endpoint definitions
-- **Database-per-service**: Each microservice has its own MongoDB instance
-- **No YARP**: Custom lightweight request forwarder
-- **BuildingBlocks**: Shared abstractions without coupling
