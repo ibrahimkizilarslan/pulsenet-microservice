@@ -71,3 +71,57 @@ sequenceDiagram
 ```
 
 ---
+
+## 🚀 Başlangıç & Kurulum
+
+Proje **Docker Compose** ortamına tam uyumlu olup, tek bir terminal komutuyla tüm ağ birimleriyle birlikte başlatılabilmektedir.
+
+### Ön Koşullar
+- Docker & Docker Compose
+- .NET 8 SDK (Geliştirme ve unit testler için)
+
+### Projeyi Ayağa Kaldırma
+
+```bash
+cd infra
+docker-compose up --build
+```
+*Sistem ayağa kalktıktan sonra Dispatcher (Gateway) dış dünyaya `http://localhost:8080` üzerinden hizmet verecektir.*
+
+---
+
+## 🧪 Testler ve Performans
+
+### TDD (Test-Driven Development)
+Projedeki en kritik parça olan Dispatcher servisinde kod kalitesini artırmak ve hata payını minimize etmek için süreç **TDD (Red-Green-Refactor)** ile ilerletilmiştir. xUnit ile yazılan testler uygulamadan bağımsız olarak çalıştırılabilir:
+
+```bash
+dotnet test tests/PulseNet.Gateway.Tests/PulseNet.Gateway.Tests.csproj
+```
+
+### 📊 Grafana İzleme ve Yük Testleri
+Mimarinin yoğun trafiğe karşı dayanıklılığını ölçmek adına profesyonel araçlarla simülasyonlar (JMeter, k6 veya Locust vb.) gerçekleştirilmektedir.
+
+- **Loglama ve Görselleştirme:** Dispatcher üzerinden geçen trafik akışı Grafana aracılığıyla (`localhost:3000`) grafiksel arayüze taşınmıştır.
+- Performans testlerine ait gecikme (ms) ve hata oranları proje geliştirme fazları ardında repo içerisine konumlandırılacaktır.
+
+---
+
+## 📸 Ekran Görüntüleri ve Çıktılar
+
+> *(Geliştirme süreci tamamlandığında görseller güncellenecektir)*
+> - 🖼️ **Grafana Dashboard:** API trafiği ve genel hata logları ekran görüntüsü.
+> - 🚦 **Yük Testi Raporu:** JMeter/k6 raporları (50, 100, 200 eş zamanlı kullanıcı istek senaryoları).
+> - 🛡️ **Network Isolation Kanıtı:** Ağa dışarıdan istek atıldığında servisin Red/Block vermesi görseli.
+
+---
+
+## 👥 Ekip
+
+- **[İbrahim Kızılarslan]**
+- **[Cihat Karataş]**
+
+---
+
+**Özet / Sonuç:** 
+Bu projede katmanlı ve monolitik yaklaşımlardan uzaklaşılarak, her bir modülün OOP mantığına uygun birer ünite/servis olarak bağlandığı; yönetimi, ölçeklenmesi ve bakımı kolay temiz bir mimari (Clean Architecture) kurgulanmıştır. Sonraki aşamalarda sistem RabbitMQ/Kafka gibi Message Broker’lar ile desteklenerek asenkron modellere entegre edilebilir.
