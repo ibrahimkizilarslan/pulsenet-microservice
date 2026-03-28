@@ -1,0 +1,66 @@
+@host = http://localhost:8080
+
+### 1. Health Check (Public)
+GET {{host}}/health
+Accept: application/json
+
+### 2. Auth: Register New User
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "Password123!"
+}
+
+### 3. Auth: Login to get JWT (Screenshot this for Auth logic)
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "Password123!"
+}
+
+@token = {{login.response.body.token}}
+
+### 4. Create a Post (RMM Level 2 - POST - Success 201)
+POST {{host}}/api/posts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "authorId": "user_001",
+  "content": "Hello PulseNet! This is a TDD-tested post.",
+  "tags": ["dotnet", "microservices"]
+}
+
+### 5. Get Recent Posts (RMM Level 2 - GET - Success 200)
+GET {{host}}/api/posts/recent
+Authorization: Bearer {{token}}
+
+### 6. Update a Post (RMM Level 2 - PUT - Success 200)
+# Replace {id} with an ID from the GET response
+PUT {{host}}/api/posts/65f...
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "content": "Updated content via Gateway!",
+  "tags": ["updated"]
+}
+
+### 7. Delete a Post (RMM Level 2 - DELETE - Success 204)
+# Replace {id} with an ID from the GET response
+DELETE {{host}}/api/posts/65f...
+Authorization: Bearer {{token}}
+
+### 8. Test Unauthorized Access (Security Check - Expect 401)
+GET {{host}}/api/posts/recent
+# No token provided here
+
+### 9. Test Not Found (RMM Level 2 - GET - Expect 404)
+GET {{host}}/api/posts/non-existing-id
+Authorization: Bearer {{token}}
