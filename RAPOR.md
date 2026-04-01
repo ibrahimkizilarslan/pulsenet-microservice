@@ -100,7 +100,7 @@ Genel sistem ağ mimarisini gösteren akış (Flow) diyagramı:
 graph TD
     Client[İstemci / Web UI / K6] -->|HTTP:8080| Gateway[Dispatcher / API Gateway]
     
-    subgraph Korumalı İç Ağ (Network Isolation)
+    subgraph Internal_Network [Korumalı İç Ağ - Network Isolation]
         Gateway -.->|internal_net / proxy| Auth[Auth Service]
         Gateway -.->|internal_net / proxy| Users[User Service]
         Gateway -.->|internal_net / proxy| Posts[Post Service]
