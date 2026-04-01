@@ -2,7 +2,7 @@
 
 ## 1. Proje Bilgileri
 - **Proje Adı:** PulseNet - Microservices Social Media Platform
-- **Ekip Üyeleri:** İbrahim KIZILARSLAN 231307045, Cihat KARATAŞ 231307078
+- **Ekip Üyeleri ve Grup Numarası:** İbrahim KIZILARSLAN 231307045, Cihat KARATAŞ 231307078 , Grup 32
 - **Tarih:** 5 Nisan 2026
 - **Akademisyen:** Dr. Öğr. Üyesi Samet DİRİ
 
