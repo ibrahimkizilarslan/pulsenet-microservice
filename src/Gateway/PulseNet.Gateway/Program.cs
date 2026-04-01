@@ -1,40 +1,44 @@
 using System.Text.Json;
+using PulseNet.BuildingBlocks;
 using PulseNet.BuildingBlocks.Auth;
 using PulseNet.BuildingBlocks.Middleware;
 using PulseNet.Gateway.Auth;
 using PulseNet.Gateway.Forwarding;
 using PulseNet.Gateway.Routing;
 using Serilog;
+using Prometheus;
 
 using MongoDB.Driver;
 using PulseNet.Gateway.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// CORS: allow WebUI (dev) to call the gateway directly.
+builder.AddServiceDefaults();
+
+// CORS: allow WebUI (dev / Docker) to call the gateway from a browser (cross-origin).
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("webui", policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:3000",
-                "http://127.0.0.1:3000",
-                "http://localhost:5000",
-                "http://127.0.0.1:5000")
+            .SetIsOriginAllowed(static origin =>
+            {
+                if (string.IsNullOrWhiteSpace(origin)) return false;
+                try
+                {
+                    var uri = new Uri(origin);
+                    return uri.Scheme is "http" or "https"
+                           && (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+                               || uri.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase));
+                }
+                catch (UriFormatException)
+                {
+                    return false;
+                }
+            })
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
-});
-
-builder.Host.UseSerilog((context, configuration) =>
-{
-    configuration
-        .ReadFrom.Configuration(context.Configuration)
-        .Enrich.FromLogContext()
-        .Enrich.WithProperty("Application", "PulseNet.Gateway")
-        .WriteTo.Console(outputTemplate:
-            "[{Timestamp:HH:mm:ss} {Level:u3}] [Gateway] {Message:lj} {Properties:j}{NewLine}{Exception}");
 });
 
 var mongoConnString = builder.Configuration["Mongo:ConnectionString"] ?? "mongodb://localhost:27017";
@@ -78,13 +82,21 @@ using (var scope = app.Services.CreateScope())
     routeTable.UpdateRoutes(routes);
 }
 
+// Gateway skips InternalGatewayHeaderMiddleware (see UseServiceDefaults). CORS must run after
+// UseRouting so preflight OPTIONS is answered here with Access-Control-* headers instead of
+// being forwarded to a downstream service that does not add them.
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseSerilogRequestLogging();
+app.UseHttpMetrics();
+
+app.UseRouting();
 
 app.UseCors("webui");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapMetrics();
 
 app.MapGet("/health", async (HttpContext context) =>
 {

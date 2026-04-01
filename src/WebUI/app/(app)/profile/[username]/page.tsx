@@ -5,6 +5,7 @@ import { usersApi, postsApi, followsApi } from '@/lib/api';
 import PostCard from '@/components/PostCard';
 import { ArrowLeft, RefreshCcw } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
+import { ensureStoredUserHasId } from '@/lib/userProfile';
 
 export default function Profile() {
   const router = useRouter();
@@ -17,24 +18,24 @@ export default function Profile() {
   const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('pulsenet_user');
-    if (savedUser) setCurrentUser(JSON.parse(savedUser));
-  }, []);
-
-  useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
+        const me = await ensureStoredUserHasId();
+        if (me) setCurrentUser(me);
+
         const profileRes = await usersApi.getByUsername(username);
         setProfile(profileRes.data);
-        
+
         const postsRes = await postsApi.getByAuthor(profileRes.data.id);
         setPosts(postsRes.data);
-        
-        if (currentUser && currentUser.username !== username) {
-          const followingsRes = await followsApi.getFollowing(currentUser.id || currentUser.username);
+
+        if (me?.id && me.id !== profileRes.data.id) {
+          const followingsRes = await followsApi.getFollowing(me.id);
           const isF = followingsRes.data.some((f: any) => f.followeeId === profileRes.data.id);
           setIsFollowing(isF);
+        } else {
+          setIsFollowing(false);
         }
       } catch (err) {
         console.error('Profile fetch error:', err);
@@ -43,15 +44,16 @@ export default function Profile() {
       }
     };
     fetchData();
-  }, [username, currentUser]);
+  }, [username]);
 
   const handleFollow = async () => {
-    if (!currentUser || !profile) return;
+    const me = await ensureStoredUserHasId();
+    if (!me?.id || !profile) return;
     try {
       if (isFollowing) {
-        await followsApi.unfollow(currentUser.id, profile.id);
+        await followsApi.unfollow(me.id, profile.id);
       } else {
-        await followsApi.follow(currentUser.id, profile.id);
+        await followsApi.follow(me.id, profile.id);
       }
       setIsFollowing(!isFollowing);
     } catch (err) {
@@ -80,16 +82,16 @@ export default function Profile() {
           {profile.username.charAt(0)}
         </div>
         <div className="flex justify-end p-3">
-          {currentUser && currentUser.username === username ? (
+          {currentUser?.id && profile?.id && currentUser.id === profile.id ? (
             <button className="btn-outline">Profili Duzenle</button>
-          ) : (
+          ) : currentUser?.id && profile?.id && currentUser.id !== profile.id ? (
             <button 
               onClick={handleFollow}
               className={isFollowing ? "btn-outline" : "bg-foreground text-background font-bold px-6 py-2 rounded-full"}
             >
               {isFollowing ? 'Takiptesin' : 'Takip Et'}
             </button>
-          )}
+          ) : null}
         </div>
       </div>
 

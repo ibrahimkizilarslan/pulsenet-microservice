@@ -1,30 +1,71 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import CreatePost from '@/components/CreatePost';
-import PostCard from '@/components/PostCard';
-import { postsApi } from '@/lib/api';
+import PostCard, { type PostProps } from '@/components/PostCard';
+import { timelineApi, usersApi } from '@/lib/api';
+import { ensureStoredUserHasId } from '@/lib/userProfile';
 import { RefreshCcw } from 'lucide-react';
 
+type TimelineEntryResponse = {
+  postId: string;
+  authorId: string;
+  content: string;
+  postCreatedAt: string;
+};
+
 export default function Home() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<PostProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchPosts = async () => {
+  const fetchFeed = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { data } = await postsApi.getRecent();
-      setPosts(data);
+      const me = await ensureStoredUserHasId();
+      if (!me?.id) {
+        setPosts([]);
+        return;
+      }
+
+      const { data: entries } = await timelineApi.getTimeline(me.id);
+      const list = entries as TimelineEntryResponse[];
+      const authorIds = [...new Set(list.map((e) => e.authorId))];
+      const authorMap = new Map<string, { username: string; displayName?: string }>();
+
+      await Promise.all(
+        authorIds.map(async (id) => {
+          try {
+            const { data } = await usersApi.getById(id);
+            authorMap.set(id, {
+              username: data.username,
+              displayName: data.displayName,
+            });
+          } catch {
+            /* author lookup optional */
+          }
+        }),
+      );
+
+      setPosts(
+        list.map((e) => ({
+          id: e.postId,
+          authorId: e.authorId,
+          authorUsername: authorMap.get(e.authorId)?.username,
+          authorDisplayName: authorMap.get(e.authorId)?.displayName,
+          content: e.content,
+          createdAt: e.postCreatedAt,
+        })),
+      );
     } catch (error) {
-      console.error('Failed to fetch posts:', error);
+      console.error('Failed to fetch timeline:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    void fetchFeed();
+  }, [fetchFeed]);
 
   return (
     <div className="flex flex-col min-h-screen bg-black">
@@ -35,7 +76,7 @@ export default function Home() {
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <CreatePost onPostCreated={fetchPosts} />
+        <CreatePost onPostCreated={fetchFeed} />
 
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
@@ -49,8 +90,8 @@ export default function Home() {
           </div>
         ) : null}
 
-        {!isLoading && posts.map((post, idx) => (
-          <PostCard key={post.id || idx} post={post} />
+        {!isLoading && posts.map((post) => (
+          <PostCard key={post.id} post={post} />
         ))}
       </div>
     </div>

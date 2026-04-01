@@ -29,6 +29,24 @@ public static class TimelineEndpoints
             return Results.Created($"/api/timeline/{entry.Id}", entry);
         });
 
+        group.MapPost("/batch", async (List<AddTimelineEntryRequest> requests, TimelineRepository repo) =>
+        {
+            if (requests.Count == 0)
+                return Results.Ok();
+
+            var entries = requests.Select(r => new TimelineEntry
+            {
+                UserId = r.UserId,
+                PostId = r.PostId,
+                AuthorId = r.AuthorId,
+                Content = r.Content,
+                PostCreatedAt = r.PostCreatedAt
+            });
+
+            await repo.AddEntriesBatchAsync(entries);
+            return Results.Ok();
+        });
+
         group.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "timeline" }));
     }
 }

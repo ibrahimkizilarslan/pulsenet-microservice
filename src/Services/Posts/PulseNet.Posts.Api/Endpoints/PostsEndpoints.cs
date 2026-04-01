@@ -1,5 +1,6 @@
 using PulseNet.Posts.Api.Domain;
 using PulseNet.Posts.Api.Persistence;
+using PulseNet.Posts.Api.Services;
 
 namespace PulseNet.Posts.Api.Endpoints;
 
@@ -33,7 +34,11 @@ public static class PostsEndpoints
             return Results.Ok(posts);
         });
 
-        group.MapPost("/", async (CreatePostRequest request, PostsRepository repo) =>
+        group.MapPost("/", async (
+            CreatePostRequest request,
+            PostsRepository repo,
+            TimelineFanOutService fanOut,
+            CancellationToken cancellationToken) =>
         {
             var post = new Post
             {
@@ -42,6 +47,7 @@ public static class PostsEndpoints
                 Tags = request.Tags ?? []
             };
             await repo.CreateAsync(post);
+            await fanOut.TryFanOutAsync(post, cancellationToken);
             return Results.Created($"/api/posts/{post.Id}", post);
         });
 

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PulseNet.BuildingBlocks.Middleware;
 using Serilog;
+using Prometheus;
 
 namespace PulseNet.BuildingBlocks;
 
@@ -23,11 +24,23 @@ public static class ServiceDefaults
         return builder;
     }
 
-    public static WebApplication UseServiceDefaults(this WebApplication app)
+    public static WebApplication UseServiceDefaults(this WebApplication app, bool isGateway = false)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
-        app.UseMiddleware<InternalGatewayHeaderMiddleware>();
+        
+        // Dispatcher (Gateway) does not need to verify its own header.
+        // It's the one responsible for adding it to downstream requests.
+        if (!isGateway)
+        {
+            app.UseMiddleware<InternalGatewayHeaderMiddleware>();
+        }
+
         app.UseSerilogRequestLogging();
+        
+        // Prometheus metrics
+        app.UseHttpMetrics();
+        app.MapMetrics();
+
         return app;
     }
 }

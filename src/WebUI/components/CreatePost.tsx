@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { postsApi } from '@/lib/api';
+import { ensureStoredUserHasId } from '@/lib/userProfile';
 
 export default function CreatePost({ onPostCreated }: { onPostCreated?: () => void }) {
   const [content, setContent] = useState('');
@@ -17,17 +18,24 @@ export default function CreatePost({ onPostCreated }: { onPostCreated?: () => vo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || !user) return;
+    if (!content.trim()) return;
 
     setIsSubmitting(true);
     try {
+      const me = await ensureStoredUserHasId();
+      if (!me?.id) {
+        console.error('Users profile id missing; log in again or complete profile.');
+        return;
+      }
+      setUser(me);
+
       // Extract hashtags
       const tags = content.match(/#(\w+)/g)?.map(t => t.replace('#', '')) || [];
-      
+
       await postsApi.create({
         content,
-        authorId: user.id || user.username,
-        tags
+        authorId: me.id,
+        tags,
       });
       
       setContent('');

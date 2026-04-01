@@ -15,6 +15,14 @@ public sealed class InternalGatewayHeaderMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
+        // Allow metrics and health checks without the internal header
+        var path = context.Request.Path.Value;
+        if (path == "/metrics" || path == "/health")
+        {
+            await _next(context);
+            return;
+        }
+
         if (!context.Request.Headers.TryGetValue(InternalHeader, out var headerValue)
             || headerValue != ExpectedValue)
         {

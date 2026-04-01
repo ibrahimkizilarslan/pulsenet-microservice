@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PulseNet.Gateway")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a15984520979942e7bee581b87f3f8a3685fd2dc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3425ec63a76189cbe98151b769ac2c12bc2682d7")]
 [assembly: System.Reflection.AssemblyProductAttribute("PulseNet.Gateway")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PulseNet.Gateway")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

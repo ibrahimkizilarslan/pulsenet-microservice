@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authApi } from '@/lib/api';
+import { ensureStoredUserHasId } from '@/lib/userProfile';
 
 export default function AppLayout({
   children,
@@ -17,9 +18,17 @@ export default function AppLayout({
     const token = localStorage.getItem('pulsenet_token');
     if (!token) {
       router.push('/login');
-    } else {
-      setIsReady(true);
+      return;
     }
+    void (async () => {
+      try {
+        await ensureStoredUserHasId();
+      } catch {
+        /* ignore; pages that need id will retry */
+      } finally {
+        setIsReady(true);
+      }
+    })();
   }, [router]);
 
   if (!isReady) return <div className="min-h-screen bg-black" />;
