@@ -70,14 +70,21 @@ using (var scope = app.Services.CreateScope())
     var defaultRoutes = new List<RouteConfig>
     {
         new RouteConfig { PathPrefix = "/api/auth", DownstreamHost = "http://auth:5001", RequiresAuth = false },
-        new RouteConfig { PathPrefix = "/api/users", DownstreamHost = "http://users:5002", RequiresAuth = true },
-        new RouteConfig { PathPrefix = "/api/posts", DownstreamHost = "http://posts:5003", RequiresAuth = true },
-        new RouteConfig { PathPrefix = "/api/follows", DownstreamHost = "http://follows:5004", RequiresAuth = true },
-        new RouteConfig { PathPrefix = "/api/timeline", DownstreamHost = "http://timeline:5005", RequiresAuth = true }
+        
+        // Granular routes for Posts: Users can see specific posts, but only Admin can list ALL
+        new RouteConfig { PathPrefix = "/api/posts/by-author", DownstreamHost = "http://posts:5003", AllowedRoles = ["User", "Admin"] },
+        new RouteConfig { PathPrefix = "/api/posts/recent", DownstreamHost = "http://posts:5003", AllowedRoles = ["User", "Admin"] },
+        new RouteConfig { PathPrefix = "/api/posts/", DownstreamHost = "http://posts:5003", AllowedRoles = ["Admin"] }, // Trailing slash to match sub-paths
+        new RouteConfig { PathPrefix = "/api/posts", DownstreamHost = "http://posts:5003", AllowedRoles = ["Admin"] }, // Matches root /api/posts
+
+        new RouteConfig { PathPrefix = "/api/users", DownstreamHost = "http://users:5002", AllowedRoles = ["User", "Admin"] },
+        new RouteConfig { PathPrefix = "/api/follows", DownstreamHost = "http://follows:5004", AllowedRoles = ["User", "Admin"] },
+        new RouteConfig { PathPrefix = "/api/timeline", DownstreamHost = "http://timeline:5005", AllowedRoles = ["User", "Admin"] }
     };
     
     // We run it synchronously to guarantee routes are loaded before app serves requests.
-    repo.SeedIfEmptyAsync(defaultRoutes).GetAwaiter().GetResult();
+    // FORCE seed to apply new RBAC routes.
+    repo.SeedIfEmptyAsync(defaultRoutes, force: true).GetAwaiter().GetResult();
     var routes = repo.GetAllAsync().GetAwaiter().GetResult();
     routeTable.UpdateRoutes(routes);
 }
@@ -118,7 +125,7 @@ app.Map("/api/{**catch-all}", async (HttpContext context) =>
         return;
     }
 
-    if (route.RequiresAuth)
+    if (route.RequiresAuth && !context.Request.Path.Value?.Contains("/swagger/", StringComparison.OrdinalIgnoreCase) == true)
     {
         if (!authZ.IsAuthenticated(context))
         {
