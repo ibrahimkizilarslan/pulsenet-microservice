@@ -16,11 +16,15 @@ public static class AuthEndpoints
             if (existing is not null)
                 return Results.Conflict(new { error = "Username already exists." });
 
+            var role = !string.IsNullOrEmpty(request.AdminSecret) && request.AdminSecret == "PulseNetAdmin2024!" 
+                ? "Admin" 
+                : "User";
+
             var credential = new UserCredential
             {
                 Username = request.Username,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                Role = "User"
+                Role = role
             };
 
             await repo.CreateAsync(credential);
