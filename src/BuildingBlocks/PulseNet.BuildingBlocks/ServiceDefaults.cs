@@ -69,11 +69,39 @@ public static class ServiceDefaults
         app.MapMetrics();
 
         // Swagger UI
-        app.UseSwagger();
+        var servicePath = app.Configuration["ServicePath"]; // e.g. "/api/auth"
+
+        app.UseSwagger(c =>
+        {
+            if (!isGateway && !string.IsNullOrEmpty(servicePath))
+            {
+                c.RouteTemplate = servicePath.TrimStart('/') + "/swagger/{documentName}/swagger.json";
+            }
+        });
+
         app.UseSwaggerUI(c =>
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", $"{app.Environment.ApplicationName} v1");
-            c.RoutePrefix = "swagger"; // Standard
+            if (isGateway)
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Gateway API");
+                c.SwaggerEndpoint("/api/auth/swagger/v1/swagger.json", "Auth Service");
+                c.SwaggerEndpoint("/api/users/swagger/v1/swagger.json", "Users Service");
+                c.SwaggerEndpoint("/api/posts/swagger/v1/swagger.json", "Posts Service");
+                c.SwaggerEndpoint("/api/follows/swagger/v1/swagger.json", "Follows Service");
+                c.SwaggerEndpoint("/api/timeline/swagger/v1/swagger.json", "Timeline Service");
+            }
+            else
+            {
+                string swaggerEndpoint = string.IsNullOrEmpty(servicePath)
+                    ? "/swagger/v1/swagger.json"
+                    : servicePath + "/swagger/v1/swagger.json";
+
+                c.SwaggerEndpoint(swaggerEndpoint, $"{app.Environment.ApplicationName} v1");
+            }
+
+            c.RoutePrefix = string.IsNullOrEmpty(servicePath)
+                ? "swagger"
+                : servicePath.TrimStart('/') + "/swagger";
         });
 
         return app;
