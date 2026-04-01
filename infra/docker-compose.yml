@@ -60,10 +60,9 @@ services:
     build:
       context: ..
       dockerfile: src/Services/Auth/PulseNet.Auth.Api/Dockerfile
-    ports:
-      - "5001:5001"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ServicePath=/api/auth
       - Mongo__ConnectionString=mongodb://mongo-auth:27017
       - Mongo__DatabaseName=pulsenet_auth
       - Jwt__Secret=PulseNetSuperSecretKeyThatIsAtLeast32Characters!!
@@ -82,10 +81,9 @@ services:
     build:
       context: ..
       dockerfile: src/Services/Users/PulseNet.Users.Api/Dockerfile
-    ports:
-      - "5002:5002"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ServicePath=/api/users
       - Mongo__ConnectionString=mongodb://mongo-users:27017
       - Mongo__DatabaseName=pulsenet_users
     networks:
@@ -101,10 +99,9 @@ services:
     build:
       context: ..
       dockerfile: src/Services/Posts/PulseNet.Posts.Api/Dockerfile
-    ports:
-      - "5003:5003"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ServicePath=/api/posts
       - Mongo__ConnectionString=mongodb://mongo-posts:27017
       - Mongo__DatabaseName=pulsenet_posts
       - InternalGateway__Secret=PulseNetSecret
@@ -125,10 +122,9 @@ services:
     build:
       context: ..
       dockerfile: src/Services/Follows/PulseNet.Follows.Api/Dockerfile
-    ports:
-      - "5004:5004"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ServicePath=/api/follows
       - Mongo__ConnectionString=mongodb://mongo-follows:27017
       - Mongo__DatabaseName=pulsenet_follows
     networks:
@@ -144,10 +140,9 @@ services:
     build:
       context: ..
       dockerfile: src/Services/Timeline/PulseNet.Timeline.Api/Dockerfile
-    ports:
-      - "5005:5005"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ServicePath=/api/timeline
       - Mongo__ConnectionString=mongodb://mongo-timeline:27017
       - Mongo__DatabaseName=pulsenet_timeline
     networks:
