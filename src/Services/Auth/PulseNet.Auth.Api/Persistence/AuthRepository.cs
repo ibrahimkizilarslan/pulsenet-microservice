@@ -21,4 +21,9 @@ public sealed class AuthRepository
     {
         await _collection.InsertOneAsync(credential);
     }
+    
+    public async Task<bool> AnyAdminExistsAsync()
+    {
+        return await _collection.Find(u => u.Role == "Admin").AnyAsync();
+    }
 }
