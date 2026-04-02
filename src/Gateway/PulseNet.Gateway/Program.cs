@@ -15,32 +15,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-// CORS: allow WebUI (dev / Docker) to call the gateway from a browser (cross-origin).
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("webui", policy =>
-    {
-        policy
-            .SetIsOriginAllowed(static origin =>
-            {
-                if (string.IsNullOrWhiteSpace(origin)) return false;
-                try
-                {
-                    var uri = new Uri(origin);
-                    return uri.Scheme is "http" or "https"
-                           && (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
-                               || uri.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase));
-                }
-                catch (UriFormatException)
-                {
-                    return false;
-                }
-            })
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
-});
-
 var mongoConnString = builder.Configuration["Mongo:ConnectionString"] ?? "mongodb://localhost:27017";
 var mongoDatabase = new MongoClient(mongoConnString)
     .GetDatabase(builder.Configuration["Mongo:DatabaseName"] ?? "pulsenet_gateway");
@@ -102,8 +76,6 @@ using (var scope = app.Services.CreateScope())
 app.UseServiceDefaults(isGateway: true);
 
 app.UseRouting();
-
-app.UseCors("webui");
 
 app.UseAuthentication();
 app.UseAuthorization();
