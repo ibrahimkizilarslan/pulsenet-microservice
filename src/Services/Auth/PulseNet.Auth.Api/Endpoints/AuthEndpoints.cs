@@ -16,15 +16,34 @@ public static class AuthEndpoints
             if (existing is not null)
                 return Results.Conflict(new { error = "Username already exists." });
 
-            var role = !string.IsNullOrEmpty(request.AdminSecret) && request.AdminSecret == "PulseNetAdmin2024!" 
-                ? "Admin" 
-                : "User";
+            var credential = new UserCredential
+            {
+                Username = request.Username,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Role = "User"
+            };
+
+            await repo.CreateAsync(credential);
+
+            var token = tokenGenerator.GenerateToken(credential.Id, credential.Username, credential.Role);
+            return Results.Created($"/api/auth/{credential.Id}", new AuthResponse(token, credential.Username));
+        });
+
+        group.MapPost("/register-admin", async (RegisterRequest request, AuthRepository repo, JwtTokenGenerator tokenGenerator) =>
+        {
+            // Check if any Admin already exists
+            if (await repo.AnyAdminExistsAsync())
+                return Results.Conflict(new { error = "Admin account already exists. Only one Admin is allowed." });
+
+            var existing = await repo.GetByUsernameAsync(request.Username);
+            if (existing is not null)
+                return Results.Conflict(new { error = "Username already exists." });
 
             var credential = new UserCredential
             {
                 Username = request.Username,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                Role = role
+                Role = "Admin"
             };
 
             await repo.CreateAsync(credential);
