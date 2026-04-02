@@ -70,14 +70,28 @@ using (var scope = app.Services.CreateScope())
     var defaultRoutes = new List<RouteConfig>
     {
         new RouteConfig { PathPrefix = "/api/auth", DownstreamHost = "http://auth:5001", RequiresAuth = false },
-        new RouteConfig { PathPrefix = "/api/users", DownstreamHost = "http://users:5002", RequiresAuth = true },
-        new RouteConfig { PathPrefix = "/api/posts", DownstreamHost = "http://posts:5003", RequiresAuth = true },
-        new RouteConfig { PathPrefix = "/api/follows", DownstreamHost = "http://follows:5004", RequiresAuth = true },
-        new RouteConfig { PathPrefix = "/api/timeline", DownstreamHost = "http://timeline:5005", RequiresAuth = true }
+        
+        // POST /api/posts -> Allow everyone (Admin + User)
+        new RouteConfig { PathPrefix = "/api/posts", DownstreamHost = "http://posts:5003", AllowedMethods = ["POST"], AllowedRoles = ["User", "Admin"] },
+        
+        // Specific Post routes (Recent/Author) -> Allow everyone
+        new RouteConfig { PathPrefix = "/api/posts/by-author", DownstreamHost = "http://posts:5003", AllowedRoles = ["User", "Admin"] },
+        new RouteConfig { PathPrefix = "/api/posts/recent", DownstreamHost = "http://posts:5003", AllowedRoles = ["User", "Admin"] },
+        
+        // GET /api/posts (List ALL) -> Admin only
+        new RouteConfig { PathPrefix = "/api/posts", DownstreamHost = "http://posts:5003", AllowedMethods = ["GET"], AllowedRoles = ["Admin"] },
+        
+        // Catch-all generic /api/posts (e.g. for subpaths not covered) -> Admin only
+        new RouteConfig { PathPrefix = "/api/posts", DownstreamHost = "http://posts:5003", AllowedRoles = ["Admin"] },
+
+        new RouteConfig { PathPrefix = "/api/users", DownstreamHost = "http://users:5002", AllowedRoles = ["User", "Admin"] },
+        new RouteConfig { PathPrefix = "/api/follows", DownstreamHost = "http://follows:5004", AllowedRoles = ["User", "Admin"] },
+        new RouteConfig { PathPrefix = "/api/timeline", DownstreamHost = "http://timeline:5005", AllowedRoles = ["User", "Admin"] }
     };
     
     // We run it synchronously to guarantee routes are loaded before app serves requests.
-    repo.SeedIfEmptyAsync(defaultRoutes).GetAwaiter().GetResult();
+    // FORCE seed to apply new RBAC routes.
+    repo.SeedIfEmptyAsync(defaultRoutes, force: true).GetAwaiter().GetResult();
     var routes = repo.GetAllAsync().GetAwaiter().GetResult();
     routeTable.UpdateRoutes(routes);
 }
@@ -85,9 +99,7 @@ using (var scope = app.Services.CreateScope())
 // Gateway skips InternalGatewayHeaderMiddleware (see UseServiceDefaults). CORS must run after
 // UseRouting so preflight OPTIONS is answered here with Access-Control-* headers instead of
 // being forwarded to a downstream service that does not add them.
-app.UseMiddleware<CorrelationIdMiddleware>();
-app.UseSerilogRequestLogging();
-app.UseHttpMetrics();
+app.UseServiceDefaults(isGateway: true);
 
 app.UseRouting();
 
@@ -96,7 +108,8 @@ app.UseCors("webui");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapMetrics();
+// Metrics and Swagger are mapped in UseServiceDefaults
+// app.MapMetrics();
 
 app.MapGet("/health", async (HttpContext context) =>
 {
@@ -110,7 +123,7 @@ app.Map("/api/{**catch-all}", async (HttpContext context) =>
     var authZ = context.RequestServices.GetRequiredService<GatewayAuthZ>();
     var forwarder = context.RequestServices.GetRequiredService<Forwarder>();
 
-    var route = routeMatcher.Match(context.Request.Path);
+    var route = routeMatcher.Match(context.Request.Path, context.Request.Method);
     if (route is null)
     {
         context.Response.StatusCode = StatusCodes.Status404NotFound;
@@ -119,7 +132,7 @@ app.Map("/api/{**catch-all}", async (HttpContext context) =>
         return;
     }
 
-    if (route.RequiresAuth)
+    if (route.RequiresAuth && !context.Request.Path.Value?.Contains("/swagger/", StringComparison.OrdinalIgnoreCase) == true)
     {
         if (!authZ.IsAuthenticated(context))
         {

@@ -13,6 +13,7 @@ public sealed class RouteConfig
     public required string DownstreamHost { get; init; }
     public bool RequiresAuth { get; init; } = true;
     public string[] AllowedRoles { get; init; } = [];
+    public string[] AllowedMethods { get; init; } = []; // Empty means any method
 }
 
 public sealed class RouteTable

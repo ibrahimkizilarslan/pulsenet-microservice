@@ -449,3 +449,7 @@
 /home/ibrahimkizilarslan/Desktop/pulsenet-microservice/tests/PulseNet.Gateway.Tests/obj/Debug/net9.0/PulseNet.Gateway.Tests.pdb
 /home/ibrahimkizilarslan/Desktop/pulsenet-microservice/tests/PulseNet.Gateway.Tests/obj/Debug/net9.0/PulseNet.Gateway.Tests.genruntimeconfig.cache
 /home/ibrahimkizilarslan/Desktop/pulsenet-microservice/tests/PulseNet.Gateway.Tests/obj/Debug/net9.0/ref/PulseNet.Gateway.Tests.dll
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/tests/PulseNet.Gateway.Tests/bin/Debug/net9.0/Microsoft.OpenApi.dll
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/tests/PulseNet.Gateway.Tests/bin/Debug/net9.0/Swashbuckle.AspNetCore.Swagger.dll
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/tests/PulseNet.Gateway.Tests/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerGen.dll
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/tests/PulseNet.Gateway.Tests/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerUI.dll

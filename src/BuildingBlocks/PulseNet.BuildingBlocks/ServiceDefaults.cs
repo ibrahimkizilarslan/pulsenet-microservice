@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using PulseNet.BuildingBlocks.Middleware;
 using Serilog;
 using Prometheus;
@@ -19,6 +20,32 @@ public static class ServiceDefaults
                 .Enrich.WithProperty("Application", builder.Environment.ApplicationName)
                 .WriteTo.Console(outputTemplate:
                     "[{Timestamp:HH:mm:ss} {Level:u3}] [{Application}] {Message:lj} {Properties:j}{NewLine}{Exception}");
+        });
+
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = builder.Environment.ApplicationName, Version = "v1" });
+            
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer"
+            });
+
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                    },
+                    Array.Empty<string>()
+                }
+            });
         });
 
         return builder;
@@ -40,6 +67,42 @@ public static class ServiceDefaults
         // Prometheus metrics
         app.UseHttpMetrics();
         app.MapMetrics();
+
+        // Swagger UI
+        var servicePath = app.Configuration["ServicePath"]; // e.g. "/api/auth"
+
+        app.UseSwagger(c =>
+        {
+            if (!isGateway && !string.IsNullOrEmpty(servicePath))
+            {
+                c.RouteTemplate = servicePath.TrimStart('/') + "/swagger/{documentName}/swagger.json";
+            }
+        });
+
+        app.UseSwaggerUI(c =>
+        {
+            if (isGateway)
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Gateway API");
+                c.SwaggerEndpoint("/api/auth/swagger/v1/swagger.json", "Auth Service");
+                c.SwaggerEndpoint("/api/users/swagger/v1/swagger.json", "Users Service");
+                c.SwaggerEndpoint("/api/posts/swagger/v1/swagger.json", "Posts Service");
+                c.SwaggerEndpoint("/api/follows/swagger/v1/swagger.json", "Follows Service");
+                c.SwaggerEndpoint("/api/timeline/swagger/v1/swagger.json", "Timeline Service");
+            }
+            else
+            {
+                string swaggerEndpoint = string.IsNullOrEmpty(servicePath)
+                    ? "/swagger/v1/swagger.json"
+                    : servicePath + "/swagger/v1/swagger.json";
+
+                c.SwaggerEndpoint(swaggerEndpoint, $"{app.Environment.ApplicationName} v1");
+            }
+
+            c.RoutePrefix = string.IsNullOrEmpty(servicePath)
+                ? "swagger"
+                : servicePath.TrimStart('/') + "/swagger";
+        });
 
         return app;
     }

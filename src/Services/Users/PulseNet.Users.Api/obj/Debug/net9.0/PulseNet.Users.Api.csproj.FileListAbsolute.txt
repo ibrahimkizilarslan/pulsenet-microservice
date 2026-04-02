@@ -65,3 +65,7 @@
 /home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Users/PulseNet.Users.Api/obj/Debug/net9.0/PulseNet.Users.Api.pdb
 /home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Users/PulseNet.Users.Api/obj/Debug/net9.0/PulseNet.Users.Api.genruntimeconfig.cache
 /home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Users/PulseNet.Users.Api/obj/Debug/net9.0/ref/PulseNet.Users.Api.dll
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Users/PulseNet.Users.Api/bin/Debug/net9.0/Microsoft.OpenApi.dll
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Users/PulseNet.Users.Api/bin/Debug/net9.0/Swashbuckle.AspNetCore.Swagger.dll
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Users/PulseNet.Users.Api/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerGen.dll
+/home/ibrahimkizilarslan/Desktop/pulsenet-microservice/src/Services/Users/PulseNet.Users.Api/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerUI.dll

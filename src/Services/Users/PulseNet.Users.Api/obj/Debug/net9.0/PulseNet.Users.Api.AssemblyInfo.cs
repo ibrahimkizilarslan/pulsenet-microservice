@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PulseNet.Users.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+62bfba893249c047da4dd44b80eafee996cb4fa3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+76e51eb257a6f8fa5ed15c82b1ce3897ab47cc73")]
 [assembly: System.Reflection.AssemblyProductAttribute("PulseNet.Users.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PulseNet.Users.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
