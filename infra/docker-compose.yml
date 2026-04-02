@@ -62,6 +62,7 @@ services:
       dockerfile: src/Services/Auth/PulseNet.Auth.Api/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ServicePath=/api/auth
       - Mongo__ConnectionString=mongodb://mongo-auth:27017
       - Mongo__DatabaseName=pulsenet_auth
       - Jwt__Secret=PulseNetSuperSecretKeyThatIsAtLeast32Characters!!
@@ -82,6 +83,7 @@ services:
       dockerfile: src/Services/Users/PulseNet.Users.Api/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ServicePath=/api/users
       - Mongo__ConnectionString=mongodb://mongo-users:27017
       - Mongo__DatabaseName=pulsenet_users
     networks:
@@ -99,6 +101,7 @@ services:
       dockerfile: src/Services/Posts/PulseNet.Posts.Api/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ServicePath=/api/posts
       - Mongo__ConnectionString=mongodb://mongo-posts:27017
       - Mongo__DatabaseName=pulsenet_posts
       - InternalGateway__Secret=PulseNetSecret
@@ -121,6 +124,7 @@ services:
       dockerfile: src/Services/Follows/PulseNet.Follows.Api/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ServicePath=/api/follows
       - Mongo__ConnectionString=mongodb://mongo-follows:27017
       - Mongo__DatabaseName=pulsenet_follows
     networks:
@@ -138,6 +142,7 @@ services:
       dockerfile: src/Services/Timeline/PulseNet.Timeline.Api/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ServicePath=/api/timeline
       - Mongo__ConnectionString=mongodb://mongo-timeline:27017
       - Mongo__DatabaseName=pulsenet_timeline
     networks:
