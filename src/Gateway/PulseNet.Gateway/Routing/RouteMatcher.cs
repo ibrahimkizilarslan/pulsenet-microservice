@@ -9,13 +9,14 @@ public sealed class RouteMatcher
         _routeTable = routeTable;
     }
 
-    public RouteConfig? Match(string requestPath)
+    public RouteConfig? Match(string requestPath, string method)
     {
         if (string.IsNullOrWhiteSpace(requestPath))
             return null;
 
         return _routeTable.Routes.FirstOrDefault(r =>
-            requestPath.StartsWith(r.PathPrefix, StringComparison.OrdinalIgnoreCase));
+            requestPath.StartsWith(r.PathPrefix, StringComparison.OrdinalIgnoreCase) &&
+            (r.AllowedMethods.Length == 0 || r.AllowedMethods.Contains(method, StringComparer.OrdinalIgnoreCase)));
     }
 
     public string BuildDownstreamUrl(RouteConfig route, string requestPath, string? queryString)
