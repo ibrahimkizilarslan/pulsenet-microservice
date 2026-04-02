@@ -71,11 +71,18 @@ using (var scope = app.Services.CreateScope())
     {
         new RouteConfig { PathPrefix = "/api/auth", DownstreamHost = "http://auth:5001", RequiresAuth = false },
         
-        // Granular routes for Posts: Users can see specific posts, but only Admin can list ALL
+        // POST /api/posts -> Allow everyone (Admin + User)
+        new RouteConfig { PathPrefix = "/api/posts", DownstreamHost = "http://posts:5003", AllowedMethods = ["POST"], AllowedRoles = ["User", "Admin"] },
+        
+        // Specific Post routes (Recent/Author) -> Allow everyone
         new RouteConfig { PathPrefix = "/api/posts/by-author", DownstreamHost = "http://posts:5003", AllowedRoles = ["User", "Admin"] },
         new RouteConfig { PathPrefix = "/api/posts/recent", DownstreamHost = "http://posts:5003", AllowedRoles = ["User", "Admin"] },
-        new RouteConfig { PathPrefix = "/api/posts/", DownstreamHost = "http://posts:5003", AllowedRoles = ["Admin"] }, // Trailing slash to match sub-paths
-        new RouteConfig { PathPrefix = "/api/posts", DownstreamHost = "http://posts:5003", AllowedRoles = ["Admin"] }, // Matches root /api/posts
+        
+        // GET /api/posts (List ALL) -> Admin only
+        new RouteConfig { PathPrefix = "/api/posts", DownstreamHost = "http://posts:5003", AllowedMethods = ["GET"], AllowedRoles = ["Admin"] },
+        
+        // Catch-all generic /api/posts (e.g. for subpaths not covered) -> Admin only
+        new RouteConfig { PathPrefix = "/api/posts", DownstreamHost = "http://posts:5003", AllowedRoles = ["Admin"] },
 
         new RouteConfig { PathPrefix = "/api/users", DownstreamHost = "http://users:5002", AllowedRoles = ["User", "Admin"] },
         new RouteConfig { PathPrefix = "/api/follows", DownstreamHost = "http://follows:5004", AllowedRoles = ["User", "Admin"] },
@@ -116,7 +123,7 @@ app.Map("/api/{**catch-all}", async (HttpContext context) =>
     var authZ = context.RequestServices.GetRequiredService<GatewayAuthZ>();
     var forwarder = context.RequestServices.GetRequiredService<Forwarder>();
 
-    var route = routeMatcher.Match(context.Request.Path);
+    var route = routeMatcher.Match(context.Request.Path, context.Request.Method);
     if (route is null)
     {
         context.Response.StatusCode = StatusCodes.Status404NotFound;
