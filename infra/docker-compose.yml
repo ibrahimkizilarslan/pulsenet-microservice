@@ -38,22 +38,6 @@ services:
     restart: unless-stopped
 
   # ──────────────────────────────────────
-  # WEB UI (Frontend Proxy)
-  # ──────────────────────────────────────
-  webui:
-    build:
-      context: ../src/WebUI
-      dockerfile: Dockerfile
-    ports:
-      - "5000:3000"
-    networks:
-      - public_net
-      - internal_net
-    depends_on:
-      - gateway
-    restart: unless-stopped
-
-  # ──────────────────────────────────────
   # AUTH SERVICE
   # ──────────────────────────────────────
   auth:
