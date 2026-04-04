@@ -1,163 +1,88 @@
-# 🚀 PulseNet — Microservices Social Media Platform
+# Proje Raporu: PulseNet - Microservices Social Media Platform
 
-![TDD](https://img.shields.io/badge/TDD-Red%20Green%20Refactor-brightgreen)
-![.NET](https://img.shields.io/badge/.NET-8.0-blueviolet)
-![Architecture](https://img.shields.io/badge/Architecture-Microservices-orange)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+## 1. Proje Bilgileri
+- **Proje Adı:** PulseNet - Microservices Social Media Platform
+- **Ekip Üyeleri ve Grup Numarası:** İbrahim KIZILARSLAN 231307045, Cihat KARATAŞ 231307078 , Grup 32
+- **Tarih:** 5 Nisan 2026
+- **Akademisyen:** Dr. Öğr. Üyesi Samet DİRİ
 
-PulseNet, merkezinde uçtan uca yönetilen bir Dispatcher (API Gateway) olan; tamamen bağımsız ve izole mikroservislerin birbiriyle konuştuğu **TDD (Test-Driven Development)** prensipleriyle geliştirilmiş modern bir sosyal medya platformu simülasyonudur. Proje, monolitik yapıların ölçeklenme ve hata yönetimi problemlerini ortadan kaldırmak için tasarlanmıştır.
 
-## 🏗️ Sistem Mimarisi
+## 2. Giriş (Problem Tanımı ve Amaç)
+Modern web uygulamalarının sürekli artan trafikleri, genişleyen özellikleri ve bakım ihtiyaçları geleneksel monolitik mimarilerin sınırlarını zorlamaktadır. Uygulama büyüdükçe kod tabanının karmaşıklaşması, bir modüldeki hatanın tüm sistemi çökertme riski, teknolojiyi tek bir platforma hapsetme ve ölçekleme zorlukları bu problemlerin başlıcalarıdır. 
 
-Dış dünyadan gelen tüm istekler, Network Isolation (Ağ İzolasyonu) kuralları gereği *yalnızca* Dispatcher üzerinden geçer ve ilgili iç mikroservise güvenli bir şekilde aktarılır.
+**Projenin Amacı:** PulseNet projesi, bu monolitik mimari sorunlarını aşmak üzere mikroservis mimarisine ve API Gateway (Dispatcher) desenine dayalı bir sosyal medya platformu simülasyonu geliştirmeyi amaçlamaktadır. Sistem, tüm dış istekleri tek bir merkezden (Gateway) karşılayarak yönlendiren, arka planda birbirinden izole, bağımsız NoSQL veritabanlarına sahip mikroservislerin (Auth, Users, Posts, Follows, Timeline) TDD (Test-Driven Development) prensipleriyle sorunsuz bir şekilde orkestre edilmesini hedeflemektedir. Öğrenciler proje kapsamında nesne yönelimli programlama, ağ yönetimi, gelişmiş REST standartları ve güncel sistem tasarım becerilerini tatbik etmiştir.
+
+## 3. Mimari Tasarım, Modeller ve Teori
+
+### 3.1. Mikroservis Mimarisi ve API Gateway
+Mikroservis mimarisi, büyük bir uygulamanın küçük, bağımsız ve birlikte çalışabilen servislere bölünmesi yaklaşımıdır. Bu projede dış dünyadan gelen (Client) tüm istekler doğrudan mikroservislere değil, **API Gateway (Dispatcher)** üzerine gelir. API Gateway istekleri alır, yetkilendirmeyi (JWT) doğrular ve servisler arası ağ izolasyonu ("Network Isolation") sağlayarak ilgili mikroservise iletir. Sistem böylece yetkilendirme mantığını her servise tek tek gömmek yerine tek noktada çözümler.
+
+### 3.2. RESTful Servisler ve Richardson Olgunluk Modeli (RMM)
+REST (Representational State Transfer), web standartlarını kullanarak istemci-sunucu arasındaki veri alışverişini tanımlayan mimari bir yaklaşımdır. **Richardson Olgunluk Modeli (RMM)**, web hizmetlerinin REST standartlarına ne kadar uyduğunu belirleyen bir derecelendirme modelidir.
+
+Projemizdeki tüm uç noktalar (endpoints) **RMM Seviye 2** standartlarına sıkı sıkıya bağlıdır. Kaynaklar (Resource) URI üzerinden tanımlanır (örneğin; `.../api/deleteUser?id=1` gibi parametrik yaklaşımlar yerine `.../api/users/{id}` şeklinde kaynak yolları kullanılır).
+- HTTP Metotları tam anlamıyla (GET = Okuma, POST = Ekleme, PUT = Güncelleme, DELETE = Silme) amaca yönelik kullanılır.
+- İşlem sonucunu tam olarak ifade eden HTTP durum kodları (200 OK, 201 Created, 401 Unauthorized, 404 Not Found, 400 Bad Request vb.) döndürülür.
+- Hatalar yakalanır ve JSON gövdesinde `{"error": true, ...}` gibi tutarlı değerler içeren standart hata mesajları döner.
+
+### 3.3. Sınıf (Veri) ve Nesne Diyagramları
+Proje kapsamında her servis kendi alanıyla (domain) ilgilenmektedir. Object-Oriented Programming (OOP) ve SOLID kuralları titizlikle uygulanmıştır. Sistemin temel veri yapılarını barındıran bazı modellerin basitleştirilmiş sınıf diyagramı:
 
 ```mermaid
-graph TD
-    Client([Dış İstemciler - Web/Mobil]) -->|HTTP :8080| Gateway[Dispatcher / API Gateway]
+classDiagram
+    class User {
+        +UUID Id
+        +String Username
+        +String Email
+        +String PasswordHash
+        +DateTime CreatedAt
+    }
+    class Post {
+        +UUID Id
+        +UUID AuthorId
+        +String Content
+        +List~String~ Tags
+        +DateTime CreatedAt
+    }
+    class AuthUser {
+        +String Username
+        +String Password
+        +String Token
+    }
+    class Timeline {
+        +UUID UserId
+        +List~UUID~ PostIds
+    }
     
-    subgraph internal_net [İzole İç Ağ / Network Isolation]
-        Gateway -->|X-Internal-Gateway| Auth[Auth Service :5001]
-        Gateway -->|X-Internal-Gateway| Users[User Service :5002]
-        Gateway -->|X-Internal-Gateway| Posts[Post Service :5003]
-        Gateway -->|X-Internal-Gateway| Follow[Follow Service :5004]
-        Gateway -->|X-Internal-Gateway| Timeline[Timeline Service :5005]
-        
-        Auth --> DB1[(MongoDB - Auth)]
-        Users --> DB2[(MongoDB - Users)]
-        Posts --> DB3[(MongoDB - Posts)]
-        Follow --> DB4[(MongoDB - Follows)]
-        Timeline --> DB5[(MongoDB - Timeline)]
-    end
-
-    style Gateway fill:#f96,stroke:#333,stroke-width:2px
-    style internal_net fill:#f4f4f4,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5
+    User "1" -- "many" Post : creates
+    User "1" -- "1" Timeline : has
 ```
 
-### ✨ Öne Çıkan Özellikler
-
-- **Gelişmiş Dispatcher (API Gateway):** YARP gibi hazır bir kütüphane kullanılmadan, TDD döngüsüyle sıfırdan yazılmış merkezi yönlendirme ve JWT doğrulama arayüzü. İstenmeyen hatalar yakalanarak spesifik HTTP hata kodları (4xx, 5xx vb.) döndürülür.
-- **RESTful & RMM Seviye 2:** Tüm endpoint'ler Richardson Olgunluk Modeli (RMM) Seviye 2 standartlarına sıkı sıkıya bağlıdır. İşlemler parametrelerden değil (`?delete=userId`), doğrudan kaynak URI'lerinden ve anlamlı HTTP metotlarından (GET, POST, PUT, DELETE) yapılır.
-- **Database-per-service (İzole Veritabanı):** Her mikroservisin veri yapıları birbirine karışmaması adına kendine ait bağımsız bir NoSQL (MongoDB) veritabanı bulunur.
-- **Güvenlik (Network Isolation):** Mikroservisler dışarıya doğrudan kapalı tutulmuştur. İstemciden veriyi gizlemek adına yalnızca Dispatcher'ın yönlendirdiği (header'ında yetki taşıyan) bağlantıları dinler.
-- **JSON Standardı:** İstemci, API Gateway ve Mikroservisler arası tüm veri aktarımı tamamen JSON formatında yapılır. OOP ve SOLID kuralları titizlikle uygulanır.
-
----
-
-## 🚦 İstek Yaşam Döngüsü
-
-İstemcinin bir kaynağa (örnek: yeni post paylaşımı) yetki aldıktan sonra nasıl eriştiğini gösteren request flow diyagramı:
+### 3.4. İstek ve Akış Çalışma Mantığı (Sequence Diagram)
+Dışarıdan bir istemcinin platformda yeni bir gönderi (post) oluşturduğu temel senaryoyu içeren Sequence Diagram (Sıra Diyagramı):
 
 ```mermaid
 sequenceDiagram
-    participant Client as İstemci
-    participant Gateway as Dispatcher (Gateway)
-    participant Target as Post Service
-    participant DB as MongoDB (Post DB)
+    participant Client
+    participant Gateway as API Gateway (Dispatcher)
+    participant PostService as Post Microservice
+    participant DB as MongoDB (Posts)
     
-    Client->>Gateway: POST /api/auth/login
-    Gateway-->>Client: 200 OK (JWT Token)
-
-    Client->>Gateway: POST /api/posts (Bearer JWT)
-    Gateway->>Gateway: Tek Merkezden JWT Kontrolü
-    alt Hatalı/Yetersiz Yetki
-        Gateway-->>Client: 401 Unauthorized / JSON Error
-    else Başarılı Doğrulama
-        Gateway->>Target: İlet (X-Internal-Gateway Korumasıyla)
-        Target->>DB: JSON Verisini Ekle
-        DB-->>Target: Başarılı
-        Target-->>Gateway: 201 Created
-        Gateway-->>Client: 201 Created
+    Client->>Gateway: POST /api/posts (Bearer JWT + JSON)
+    activate Gateway
+    Gateway->>Gateway: JWT Doğrulama & Yetki Kontrolü
+    alt Geçersiz / Yetkisiz Token
+        Gateway-->>Client: HTTP 401 Unauthorized {"error": true...}
+    else Geçerli Token
+        Gateway->>PostService: Hedefe Yönlendir (X-Internal-Gateway Koruması)
+        activate PostService
+        PostService->>DB: JSON Verisini NoSQL'e ekle
+        activate DB
+        DB-->>PostService: ObjectId ile Ekleme Başarılı
+        deactivate DB
+        PostService-->>Gateway: HTTP 201 Created
+        deactivate PostService
+        Gateway-->>Client: HTTP 201 Created (Kayıt JSON Özeti)
     end
+    deactivate Gateway
 ```
-
----
-
-## 🚀 Başlangıç & Kurulum
-
-Proje **Docker Compose** ortamına tam uyumlu olup, tek bir terminal komutuyla tüm ağ birimleriyle birlikte başlatılabilmektedir.
-
-### Ön Koşullar
-- Docker & Docker Compose
-- .NET 8 SDK (Geliştirme ve unit testler için)
-
-### Projeyi Ayağa Kaldırma
-
-```bash
-cd infra
-docker-compose up --build
-```
-*Sistem ayağa kalktıktan sonra Dispatcher (Gateway) dış dünyaya `http://localhost:8080` üzerinden hizmet verecektir.*
-
----
-
-## 🧪 Testler ve Performans
-
-### TDD (Test-Driven Development)
-Projedeki en kritik parça olan Dispatcher servisinde kod kalitesini artırmak ve hata payını minimize etmek için süreç **TDD (Red-Green-Refactor)** ile ilerletilmiştir. xUnit ile yazılan testler uygulamadan bağımsız olarak çalıştırılabilir:
-
-```bash
-dotnet test tests/PulseNet.Gateway.Tests/PulseNet.Gateway.Tests.csproj
-```
-
-### 📊 Grafana İzleme ve Yük Testleri
-Mimarinin yoğun trafiğe karşı dayanıklılığını ölçmek adına profesyonel araçlarla simülasyonlar (JMeter, k6 veya Locust vb.) gerçekleştirilmektedir.
-
-- **Loglama ve Görselleştirme:** Dispatcher üzerinden geçen trafik akışı Grafana aracılığıyla (`localhost:3000`) grafiksel arayüze taşınmıştır.
-- Performans testlerine ait gecikme (ms) ve hata oranları proje geliştirme fazları ardında repo içerisine konumlandırılacaktır.
-
----
-
-## 📸 Ekran Görüntüleri ve Çıktılar
-
-Aşağıda projemizin çeşitli özelliklerine, mimari katmanlarına ve test süreçlerine ait ekran görüntüleri bulunmaktadır. Görseller, ilgili oldukları kavramlara göre kategorize edilmiştir.
-
-### 🛡️ Mikroservis İzolasyonu ve Güvenlik
-Ağ İzolasyonu (Network Isolation) ve API Gateway üzerindeki güvenlik önlemleri:
-- **Mikroservis İzolasyonu ve Güvenlik 1:**
-  ![Mikroservis İzolasyonu ve Güvenlik 1](images/Mikroservis%20%C4%B0zolasyonu%20ve%20G%C3%BCvenlik/Mikroservis%20%C4%B0zolasyonu%20ve%20G%C3%BCvenlik%201.jpeg)
-- **Mikroservis İzolasyonu ve Güvenlik 2:**
-  ![Mikroservis İzolasyonu ve Güvenlik 2](images/Mikroservis%20%C4%B0zolasyonu%20ve%20G%C3%BCvenlik/Mikroservis%20%C4%B0zolasyonu%20ve%20G%C3%BCvenlik%202.jpeg)
-
-### 📈 Richardson Olgunluk Modeli (RESTful API)
-RMM Seviye 2 standartlarına sıkı sıkıya bağlı kalınarak oluşturulan API uç noktaları ve HTTP operasyonları:
-- **Oluşturma (Create Post):**
-  ![Create Post](images/Richardson%20Olgunluk%20Modeli/Create%20Post%20.jpeg)
-- **Listeleme (Tüm Postları Listeleme):**
-  ![Tüm Postları Listeleme](images/Richardson%20Olgunluk%20Modeli/T%C3%BCm%20Postlar%C4%B1%20Listeleme,.jpeg)
-- **Güncelleme (Kayıt Güncelleme):**
-  ![Kayıt Güncelleme](images/Richardson%20Olgunluk%20Modeli/Kay%C4%B1t%20G%C3%BCncelleme.jpeg)
-- **Silme (Delete Post):**
-  ![Delete Post](images/Richardson%20Olgunluk%20Modeli/Delete%20Post.jpeg)
-- **Hata Yönetimi (Error Handling):**
-  ![Hata Yönetimi](images/Richardson%20Olgunluk%20Modeli/Hata%20Y%C3%B6netimi.jpeg)
-
-### 🗄️ Veri İzolasyonu (Database-per-service)
-Her mikroservisin kendi verilerini yönettiği izole veri mimarisi (NoSQL - MongoDB):
-- **Veri İzolasyonu:**
-  ![Veri İzolasyonu](images/Veri%20%C4%B0zolasyonu%20(NoSQL).jpeg)
-
-### 🧪 TDD ve Birim Testler
-Red-Green-Refactor test döngüsü ve Gateway için yazılmış birim test sonuçları:
-- **TDD ve Birim Testler:**
-  ![TDD ve Birim Testler](images/TDD%20ve%20Birim%20Testler.jpeg)
-
-### 📊 İzleme ve Yük Testleri
-Sistem performansını, eş zamanlı yük kapasitesini ve metrikleri izleme araçları:
-- **Grafana Dashboard:**
-  ![Grafana](images/Grafana.jpeg)
-- **Prometheus Entegrasyonu:**
-  ![Prometheus](images/Prometheus.jpeg)
-- **K6 Yük Testi:**
-  ![K6](images/K6.jpeg)
-
----
-
-## 👥 Ekip
-
-- **İbrahim Kızılarslan**
-- **Cihat Karataş**
-
----
-
-**Özet / Sonuç:** 
-Bu projede katmanlı ve monolitik yaklaşımlardan uzaklaşılarak, her bir modülün OOP mantığına uygun birer ünite/servis olarak bağlandığı; yönetimi, ölçeklenmesi ve bakımı kolay temiz bir mimari (Clean Architecture) kurgulanmıştır. Sonraki aşamalarda sistem RabbitMQ/Kafka gibi Message Broker’lar ile desteklenerek asenkron modellere entegre edilebilir.
