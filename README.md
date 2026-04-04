@@ -86,3 +86,107 @@ sequenceDiagram
     end
     deactivate Gateway
 ```
+
+### 3.5. Karmaşıklık Analizi ve Literatür Çıkartımı
+- **Zaman Karmaşıklığı (Time Complexity):** API Gateway yönlendirme maliyeti yükseklik bakımından O(1)'dir; çünkü rotalar uygulama ilk kalkarken tanımlı olan tablo üzerinden eşleşir. Veri tabanı işlemleri MongoDB sayesinde (id veya belirli alan indekslemesi kullanılarak) ortalama `O(1)` veya `O(log N)` hızında çalışır.
+- **Alan Karmaşıklığı (Space Complexity):** İstemci katmanından Gateway'e ve servisler arasına aktarılan veri (payload) JSON metinlerinden oluştuğu için maliyeti önemsizdir. Veri tabanı bazında her servisin kendi izole veri yapısı `O(N)` maliyetle ölçeklenir, log kayıtları ise sınırlı ve denetimlidir.
+- **Literatür (Literature):** Günümüz teknoloji devi şirketleri (Netflix, Amazon vs.) artan "Tightly-Coupled" (Sıkı Sıkıya Bağlı) monolitik hizmetlerini mikroservislerle değiştirerek "Loosely-Coupled" (Gevşek Bağlı) mimarilerle yönetmektedir. Özellikle veri tabanı izolasyonu ("Database-per-service" deseni) ve tek erişim noktalı Gateway tasarımları mikroservisin başlıca önkoşulu olarak gösterilir.
+
+## 4. Proje Modüllerinin ve İşlevlerin Açıklanması
+
+Genel sistem ağ mimarisini gösteren akış (Flow) diyagramı:
+
+```mermaid
+graph TD
+    Client[İstemci / Web UI / K6] -->|HTTP:8080| Gateway[Dispatcher / API Gateway]
+    
+    subgraph Internal_Network [Korumalı İç Ağ - Network Isolation]
+        Gateway -.->|internal_net / proxy| Auth[Auth Service]
+        Gateway -.->|internal_net / proxy| Users[User Service]
+        Gateway -.->|internal_net / proxy| Posts[Post Service]
+        Gateway -.->|internal_net / proxy| Follows[Follows Service]
+        Gateway -.->|internal_net / proxy| Timeline[Timeline Service]
+        
+        Auth --> DB_Auth[(NoSQL - Auth DB)]
+        Users --> DB_Users[(NoSQL - Users DB)]
+        Posts --> DB_Posts[(NoSQL - Posts DB)]
+        Follows --> DB_Follows[(NoSQL - Follows DB)]
+        Timeline --> DB_Timeline[(NoSQL - Timeline DB)]
+    end
+
+    style Gateway fill:#f96,stroke:#333,stroke-width:2px,color:#fff
+    style Auth fill:#cce5ff,stroke:#666
+    style Users fill:#cce5ff,stroke:#666
+    style Posts fill:#cce5ff,stroke:#666
+    style Follows fill:#cce5ff,stroke:#666
+    style Timeline fill:#cce5ff,stroke:#666
+```
+
+**Modüller ve Görevleri:**
+- **Dispatcher (API Gateway):** Sistemin tek giriş noktasıdır. Tüm metrik, loglama, güvenlik (Network Isolation) kurallarını işletir ve RMM seviyesi isteklerini filtreleyerek, doğru mikroservise URL bazlı bir proxy görevi yapar.
+- **Auth Service:** Kullanıcı kayıt (Register) ve oturum açma (Login) süreçlerini kontrol edip JSON Web Token (JWT) oluşturur.
+- **User Service:** Kullanıcı profili işlemleri, temel bilgilerin getirilip-güncellenmesi.
+- **Post Service:** Gönderilerin saklandığı, detaylandığı ve servis edildiği birim. Tüm modüller kendi veritabanını okur-yazar.
+- **Follow & Timeline Servisleri:** Takip döngüsü ve feed oluşturma tarafını temsil eder.
+
+Bu mimari `docker-compose.yml` kullanılarak Dockerize edilmiş olup tek bir `docker-compose up` komutuyla (Gateway, tüm servisler, ilgili NoSQL veritabanları, Prometheus, Grafana) sistem orkestrasyonu sağlanabilmektedir.
+
+## 5. Uygulamaya Ait Açıklamalar, Testler ve Ekran Görüntüleri
+
+### 5.1. Özellikler ve Ekran Görüntüleri Karşılıkları
+
+**Mikroservis İzolasyonu (Network Isolation) ve Güvenlik**
+Servisler tek başına dış dünyanın doğrudan erişimine tamamen kapalıdır. Yetkilendirme işlemleri sadece Gateway tarafında çözümlenir, servisler kendilerine doğrudan istek geldiğinde (`X-Internal-Gateway` kuralı) engeller ("Network Isolation" kuralı).
+![Mikroservis İzolasyonu ve Güvenlik 1](images/Mikroservis%20%C4%B0zolasyonu%20ve%20G%C3%BCvenlik/Mikroservis%20%C4%B0zolasyonu%20ve%20G%C3%BCvenlik%201.jpeg)
+![Mikroservis İzolasyonu ve Güvenlik 2](images/Mikroservis%20%C4%B0zolasyonu%20ve%20G%C3%BCvenlik/Mikroservis%20%C4%B0zolasyonu%20ve%20G%C3%BCvenlik%202.jpeg)
+
+**Veri İzolasyonu (Database-per-service - NoSQL)**
+Tüm projede veriler JSON tabanlı NoSQL mimarisi (MongoDB) ile kurgulanmıştır. Her servisin sadece kendi veritabanına ulaştığı test edilmiştir:
+![Veri İzolasyonu (NoSQL)](images/Veri%20%C4%B0zolasyonu%20(NoSQL).jpeg)
+
+**Richardson Olgunluk Modeli (RMM Seviye 2 - RESTful)**
+API uç noktalarının kaynak odaklı olduğu ve doğru HTTP durum kodları döndürdüğü işlemler (Postman veya Thunder Client vb. ile):
+- **Oluşturma (POST):** Yeni kaynak oluşturulduğunda `201 Created` dönüşü.
+  ![Create Post](images/Richardson%20Olgunluk%20Modeli/Create%20Post%20.jpeg)
+- **Tüm Kayıtları Listeleme (GET):** Listeleme başarısı `200 OK`.
+  ![Tüm Postları Listeleme](images/Richardson%20Olgunluk%20Modeli/T%C3%BCm%20Postlar%C4%B1%20Listeleme,.jpeg)
+- **Kayıt Güncelleme (PUT):** Kaynakların başarılı güncelleimi, `200` veya ilişkili kod dönüşü.
+  ![Kayıt Güncelleme](images/Richardson%20Olgunluk%20Modeli/Kay%C4%B1t%20G%C3%BCncelleme.jpeg)
+- **Kayıt Silme (DELETE):** Tam silme ve URL yapısı parametresiz temiz (Örn: `.../post/1` formatı), dönüşte uygun içerik eksikliği bilgisinin iletilmesi.
+  ![Delete Post](images/Richardson%20Olgunluk%20Modeli/Delete%20Post.jpeg)
+- **Hata Yönetimi ve Durum Kodları:** Tüm hata senaryolarında (örneğin kaydın bulunamaması veya izinsizlik durumlarında) HTTP kodlarına sadık kalınarak, özel JSON (`{"error": true, ...}`) mesajlarının döndüğü sistem:
+  ![Hata Yönetimi](images/Richardson%20Olgunluk%20Modeli/Hata%20Y%C3%B6netimi.jpeg)
+
+**TDD (Test-Driven Development) ve Birim Testler**
+Geliştirme süreci en kritik birim olan Dispatcher için Red-Green-Refactor döngüsüyle yazılmış olan `xUnit` test senaryoları çerçevesinde yapılmıştır:
+![TDD ve Birim Testler](images/TDD%20ve%20Birim%20Testler.jpeg)
+
+### 5.2. Performans, İzleme ve Yük Testi Senaryoları
+Geliştirilen Dispatcher altyapısının gerçek yük altındaki başarısı ölçülmüştür. Grafiksel arayüz (UI) olarak **Grafana** tercih edilmiş olup detaylı loglar barındırılmaktadır.
+
+- **K6 Yük Testi (Performans):** JMeter/Locust/K6 profesyonel test aracıyla eşzamanlı kullanıcılara hizmet simüle edilmiş; 50, 100, 200 ve 500 istek eşzamanlı atılmıştır. Sistem yönlendirme doğruluğu, HTTP hataları ve süresi raporlanmıştır.
+![K6 Yük Testi](images/K6.jpeg)
+- **Grafana ve Prometheus:** Tüm trafik süreçlerinin API bazında anlık olarak görselleştirilmesi, başarı orantılaması ve yük oranlarının arayüz izlenmesi.
+![Grafana Dashboard](images/Grafana.jpeg)
+![Prometheus Verileri](images/Prometheus.jpeg)
+
+## 6. Sonuç, Başarılar, Sınırlılıklar ve Olası Geliştirmeler 
+
+**Başarılar:**
+- Monolitik sistemlerin yarattığı çökme, darboğaz ve kod düzensizliği tamamen ortadan kaldırılarak izole, ölçeklenebilir ve temiz bir OOP mimarisi oluşturulmuştur.
+- Gateway servisinde TDD kurallarına tam riayet edilerek sürdürülebilir bir sistem ve minimum hata payı güvence altına alınmıştır.
+- İstek yönlendirmesi URL yapısına göre tasarlanmış ve güvenli bir ağ yalıtımı (Network Isolation) yapılarak mikroservisleri dış saldırılardan kurtarılmıştır.
+- Her servisin veri izolasyonu, kendi MongoDB havuzunda tutularak kusursuz bir veri modeli yaratılmıştır. RMM Seviye 2'nin uçtan uca uygulanması projenin kalitesini yükseltmiştir.
+- Profesyonel k6 stres testleri başarıyla aşılarak Gateway mimarisinin dayanaklılığı kanıtlanmaktadır.
+
+**Sınırlılıklar:**
+- Servislerin birbiri ile konuşmalarının anlık (senkron request/response - HTTP) olarak tasarlanması, yüksek hacimli (Örn: birden çok veritabanı okuyup cevap dönmesi) bazı kompleks analizlerde sistemde bekleme anına neden olabilir.
+- Eklenen her yeni mikroservis için veritabanı yalıtımı uygulamak veritabanı maliyetini ve bakımını idari olarak zorlaştırmaktadır.
+
+**Olası Geliştirmeler:**
+- Uygulamaya asenkron bir mekanizma olan Message Brokers (RabbitMQ / Apache Kafka) ilave edilebilir. Böylece, kullanıcıların attıkları yeni "Post"lar anında bir Timeline yayıcısına event tabanlı (Event-Driven) işlenerek, beklemeler sonlandırılır.
+- Grafana ile izlenen logların ELK (Elasticsearch, Logstash, Kibana) yığınına taşınarak log tabanlı daha karmaşık analizler ve anomali tespiti elde edilebilir.
+- Dağıtık bir önbellek (Distributed Cache - Redis) kurularak, sistem sürekli tekrar eden "Timeline" listesi taleplerinin veri tabanına inmesini engelleyerek daha yüksek performansta beslemesini sağlayabilir.
+
+**Genel Değerlendirme:**
+Özetle; PulseNet raporlanan tüm teknik ve işlevsel gereksinimlerin karşılanmasını sağlamış, performanslı, endüstri standartlarına (OOP, RMM Level 2, Dockerize yapı, TDD vs.) uyumlu uçtan uca örnek teşkil edecek bir bulut mimari çözümünü başarıyla implemente etmiştir.
