@@ -81,6 +81,3 @@ The entire infrastructure is containerized and managed via Docker Compose.
 
 - **Observability:** PulseNet integrates Prometheus and Grafana to visualize traffic routing, success rates, and API performance. Once the containers are running, you can access the Grafana Dashboard directly to monitor the API Gateway operations.
 - **Resilience:** The routing and proxy mechanisms have been subjected to comprehensive load testing using **K6**, simulating concurrent users to validate system stability and architecture flow under stress.
-
-## License
-[MIT License](LICENSE)
